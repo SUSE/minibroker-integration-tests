@@ -1,0 +1,73 @@
+{{- /*
+   Copyright 2020 SUSE
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/ -}}
+
+{{- $configMountPath := "/mits/config" }}
+{{- $runMountPath := "/mits/run.sh" }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-mits" .Release.Name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "mits.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: mits
+        image: {{ default (printf "splatform/mits:%s" .Chart.Version) .Values.imageOverride | quote }}
+        imagePullPolicy: IfNotPresent
+        command: [bash]
+        args: [{{ $runMountPath | quote }}]
+        env:
+        - name: CONFIG_TESTS
+          value: {{ printf "%s/tests.yaml" $configMountPath | quote }}
+        - name: CF_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ printf "%s-cf-cred" .Release.Name | quote }}
+              key: username
+        - name: CF_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ printf "%s-cf-cred" .Release.Name | quote }}
+              key: password
+        - name: CF_ORG
+          value: {{ printf "mits-%s" (randAlphaNum 8) | quote }}
+        - name: CF_SPACE
+          value: {{ printf "mits-%s" (randAlphaNum 8) | quote }}
+        - name: CF_SERVICE_BROKER_NAME
+          value: {{ printf "minibroker-%s" (randAlphaNum 8) | quote }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: {{ $configMountPath | quote }}
+          readOnly: true
+        - name: run-script-volume
+          mountPath: {{ $runMountPath | quote }}
+          readOnly: true
+          subPath: run.sh
+      restartPolicy: Never
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ printf "%s-config" .Release.Name | quote }}
+      - name: run-script-volume
+        configMap:
+          name: {{ printf "%s-run-script" .Release.Name | quote }}
+          defaultMode: 0700

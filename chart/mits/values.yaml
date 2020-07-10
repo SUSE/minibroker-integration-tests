@@ -1,0 +1,26 @@
+# The default image is computed using the chart version. O override this behaviour, set this
+# property.
+imageOverride: ~
+
+cf:
+  api: ~
+  admin:
+    username: ~
+    password: ~
+
+minibroker:
+  service_broker:
+    url: http://minibroker-minibroker.minibroker.svc
+
+ginkgo:
+  nodes: 4
+
+tests:
+  mariadb:
+    enabled: true
+  mysql:
+    enabled: true
+  postgresql:
+    enabled: true
+  redis:
+    enabled: true
