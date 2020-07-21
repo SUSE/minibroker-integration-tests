@@ -16,12 +16,12 @@
 
 set -o errexit -o nounset -o pipefail
 
-git_root=$(git rev-parse --show-toplevel)
+git_root="$(git rev-parse --show-toplevel)"
 
-: "${CHART_VERSION:=$(awk '/^version: /{ print $2 }' < "${git_root}/chart/mits/Chart.yaml")}"
+: "${CHART_VERSION:=$(awk '/^version: /{ print $2 }' "${git_root}/chart/mits/Chart.yaml")}"
 : "${IMAGE_TAG:=splatform/mits:${CHART_VERSION}}"
 
-if [[ "${MINIKUBE:=''}" == "true" ]]; then
+if [[ "${MINIKUBE:-}" == "true" ]]; then
   >&2 echo "Building using Minikube's Docker daemon..."
   eval "$(minikube docker-env)"
 fi

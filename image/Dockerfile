@@ -14,11 +14,10 @@
 
 FROM golang:1.14 AS base
 
-# ARG CF_CLI_VERSION="7.0.1"
 ARG CF_CLI_VERSION="6.51.0"
 
 RUN go get -u github.com/onsi/ginkgo/ginkgo
-RUN curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=${CF_CLI_VERSION}&source=github-rel" \
+RUN curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=${CF_CLI_VERSION}" \
       | tar zx -C /usr/local/bin cf
 
 ###############################################################################

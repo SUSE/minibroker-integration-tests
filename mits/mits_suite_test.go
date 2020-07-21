@@ -39,8 +39,8 @@ func init() {
 }
 
 func loadConfig(envConfig string, config interface{}) error {
-	configPath := os.Getenv(envConfig)
-	if configPath == "" {
+	configPath, ok := os.LookupEnv(envConfig)
+	if !ok {
 		return fmt.Errorf("failed to load config: %q environment variable is not set", envConfig)
 	}
 	configFile, err := os.Open(configPath)

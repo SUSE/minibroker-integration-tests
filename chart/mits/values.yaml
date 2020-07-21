@@ -1,4 +1,4 @@
-# The default image is computed using the chart version. O override this behaviour, set this
+# The default image is computed using the chart version. To override this behaviour, set this
 # property.
 imageOverride: ~
 

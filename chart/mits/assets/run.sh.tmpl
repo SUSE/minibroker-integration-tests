@@ -19,14 +19,15 @@
 set -o errexit -o nounset -o pipefail
 
 cf api --skip-ssl-validation {{ .Values.cf.api | squote }}
+{{/* cf auth uses the CF_USERNAME and CF_PASSWORD environment variables. They are set in the mits job. */}}
 cf auth
 
-function exit() {
+function onexit() {
   set +o errexit
   cf delete-service-broker "${CF_SERVICE_BROKER_NAME}" -f
   cf delete-org "${CF_ORG}" -f
 }
-trap exit EXIT
+trap onexit EXIT
 
 cf create-org "${CF_ORG}"
 cf target -o "${CF_ORG}"
