@@ -21,7 +21,7 @@ import (
 )
 
 var _ = Describe("PostgreSQL", func() {
-	testConfig := testsConfig["postgresql"]
+	testConfig := testsConfig.PostgreSQL
 
 	BeforeEach(func() {
 		if !testConfig.Enabled {

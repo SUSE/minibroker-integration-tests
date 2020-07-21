@@ -21,7 +21,7 @@ import (
 )
 
 var _ = Describe("MySQL", func() {
-	testConfig := testsConfig["mysql"]
+	testConfig := testsConfig.MySQL
 
 	BeforeEach(func() {
 		if !testConfig.Enabled {

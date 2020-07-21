@@ -21,7 +21,7 @@ import (
 )
 
 var _ = Describe("Redis", func() {
-	testConfig := testsConfig["redis"]
+	testConfig := testsConfig.Redis
 
 	BeforeEach(func() {
 		if !testConfig.Enabled {

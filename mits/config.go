@@ -16,6 +16,14 @@
 
 package mits
 
+// TestsConfig represents the root of the tests configuration document.
+type TestsConfig struct {
+	MariaDB    TestConfig `yaml:"mariadb"`
+	MySQL      TestConfig `yaml:"mysql"`
+	PostgreSQL TestConfig `yaml:"postgresql"`
+	Redis      TestConfig `yaml:"redis"`
+}
+
 // TestConfig represents the configuration for an individual test.
 type TestConfig struct {
 	Enabled bool `yaml:"enabled"`

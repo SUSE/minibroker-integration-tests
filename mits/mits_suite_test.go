@@ -30,7 +30,7 @@ import (
 	"github.com/SUSE/minibroker-integration-tests/mits"
 )
 
-var testsConfig map[string]mits.TestConfig
+var testsConfig mits.TestsConfig
 
 func init() {
 	if err := loadConfig("CONFIG_TESTS", &testsConfig); err != nil {

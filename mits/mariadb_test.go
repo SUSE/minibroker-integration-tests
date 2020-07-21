@@ -21,7 +21,7 @@ import (
 )
 
 var _ = Describe("MariaDB", func() {
-	testConfig := testsConfig["mariadb"]
+	testConfig := testsConfig.MariaDB
 
 	BeforeEach(func() {
 		if !testConfig.Enabled {
