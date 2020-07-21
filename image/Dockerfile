@@ -12,17 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.14 AS base
+FROM golang:1.14 AS builder
 
 ARG CF_CLI_VERSION="6.51.0"
 
 RUN go get -u github.com/onsi/ginkgo/ginkgo
 RUN curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=${CF_CLI_VERSION}" \
       | tar zx -C /usr/local/bin cf
-
-###############################################################################
-
-FROM base AS builder
 
 WORKDIR /minibroker-integration-tests
 # Copy the go.mod over so docker can cache the module downloads if possible.
@@ -37,6 +33,6 @@ RUN ginkgo build ./mits
 FROM opensuse/leap:15.1
 
 WORKDIR /minibroker-integration-tests
-COPY --from=base /go/bin/ginkgo /usr/local/bin/ginkgo
-COPY --from=base /usr/local/bin/cf /usr/local/bin/cf
+COPY --from=builder /go/bin/ginkgo /usr/local/bin/ginkgo
+COPY --from=builder /usr/local/bin/cf /usr/local/bin/cf
 COPY --from=builder /minibroker-integration-tests/mits/mits.test ./mits/mits.test
