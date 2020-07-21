@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mits
+description: A Helm chart for running the Minibroker Integration Tests with Cloud Foundry.
+type: application
+version: 0.1.0
+appVersion: 0.1.0
