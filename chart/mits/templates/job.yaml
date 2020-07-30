@@ -32,8 +32,8 @@ spec:
       - name: mits
         image: {{ default (printf "splatform/mits:%s" .Chart.Version) .Values.imageOverride | quote }}
         imagePullPolicy: IfNotPresent
-        command: [ginkgo]
         args:
+        - ginkgo
         {{- if .Values.ginkgo.verbose }}
         - -v
         {{- end }}

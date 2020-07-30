@@ -16,6 +16,10 @@ FROM golang:1.14 AS builder
 
 ARG CF_CLI_VERSION="6.51.0"
 
+RUN curl -L -o /usr/local/bin/dumb-init \
+      "https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64"
+RUN chmod +x /usr/local/bin/dumb-init
+
 RUN go get -u github.com/onsi/ginkgo/ginkgo
 RUN curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=${CF_CLI_VERSION}" \
       | tar zx -C /usr/local/bin cf
@@ -36,4 +40,7 @@ WORKDIR /minibroker-integration-tests
 COPY --from=builder /go/bin/ginkgo /usr/local/bin/ginkgo
 COPY --from=builder /usr/local/bin/cf /usr/local/bin/cf
 COPY --from=builder /minibroker-integration-tests/mits/mits.test ./mits/mits.test
+COPY --from=builder /usr/local/bin/dumb-init /usr/local/bin/dumb-init
 COPY ./assets/ ./mits/assets/
+
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
