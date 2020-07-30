@@ -35,6 +35,9 @@ var serviceName string
 
 func init() {
 	serviceName = os.Getenv("SERVICE_NAME")
+	if serviceName == "" {
+		panic("SERVICE_NAME not set")
+	}
 }
 
 func main() {
@@ -50,11 +53,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	uri, err := url.Parse(mariadb.Credentials["uri"].(string))
+	spec, ok := mariadb.Credentials["uri"].(string)
+	if !ok {
+		log.Fatal(fmt.Errorf("URI not supplied"))
+	}
+	uri, err := url.Parse(spec)
 	if err != nil {
 		log.Fatal(err)
 	}
-	uriStr := fmt.Sprintf("%s@tcp(%s)/%s", uri.User.String(), uri.Hostname(), strings.TrimPrefix(uri.Path, "/"))
+	config := mysql.NewConfig()
+	config.User = uri.User.String()
+	config.Net = "tcp"
+	config.Addr = uri.Hostname()
+	config.DBName = uri.Path
+	uriStr := config.FormatDSN()
 	fmt.Printf("Connecting to %q\n", uriStr)
 
 	db, err := sql.Open("mysql", uriStr)
