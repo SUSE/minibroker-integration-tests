@@ -62,8 +62,8 @@ var _ = Describe("MariaDB", func() {
 
 		params := map[string]interface{}{
 			"db": map[string]interface{}{
-				"name": "mydb",
-				"user": "admin",
+				"name": generator.PrefixedRandomName(tests.MariaDB.Class, "db"),
+				"user": generator.PrefixedRandomName(tests.MariaDB.Class, "user"),
 			},
 		}
 		By("creating the service instance")
