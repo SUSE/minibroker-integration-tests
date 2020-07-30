@@ -13,7 +13,10 @@ minibroker:
     url: http://minibroker-minibroker.minibroker.svc
 
 ginkgo:
-  nodes: 4
+  nodes: 1
+  flake_attempts: 1
+  slow_spec_threshold: 300 # time in seconds.
+  verbose: false
 
 tests:
   mariadb:
