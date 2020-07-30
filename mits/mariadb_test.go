@@ -21,10 +21,8 @@ import (
 )
 
 var _ = Describe("MariaDB", func() {
-	testConfig := testsConfig.MariaDB
-
 	BeforeEach(func() {
-		if !testConfig.Enabled {
+		if !tests.MariaDB.Enabled {
 			Skip("Test is disabled")
 		}
 	})

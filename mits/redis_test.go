@@ -21,10 +21,8 @@ import (
 )
 
 var _ = Describe("Redis", func() {
-	testConfig := testsConfig.Redis
-
 	BeforeEach(func() {
-		if !testConfig.Enabled {
+		if !tests.Redis.Enabled {
 			Skip("Test is disabled")
 		}
 	})
