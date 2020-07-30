@@ -66,6 +66,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if _, err := db.Exec(createTableStatement); err != nil {
+		log.Fatal(err)
+	}
+
 	port, exists := os.LookupEnv("PORT")
 	if !exists {
 		port = "8080"
@@ -75,3 +79,10 @@ func main() {
 	})
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
+
+const createTableStatement = `
+CREATE Table mits(
+	id int NOT NULL AUTO_INCREMENT,
+	PRIMARY KEY (id)
+);
+`
