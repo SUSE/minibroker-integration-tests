@@ -54,6 +54,11 @@ type TestsConfig struct {
 
 // TestConfig represents the configuration for an individual test.
 type TestConfig struct {
+	Enabled bool   `yaml:"enabled"`
+	Class   string `yaml:"class"`
+	Plan    string `yaml:"plan"`
+}
+
 // TimeoutsConfig represents the root of the timeouts configuration document.
 type TimeoutsConfig struct {
 	CFPush          Timeout `yaml:"cf_push"`

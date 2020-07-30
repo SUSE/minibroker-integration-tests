@@ -18,6 +18,8 @@ ginkgo:
 tests:
   mariadb:
     enabled: true
+    class: mariadb
+    plan: 10-3-22
   mysql:
     enabled: true
   postgresql:
