@@ -44,9 +44,9 @@ var _ = Describe("MariaDB", func() {
 	It("should deploy and connect", func() {
 		orgName := testSetup.TestSpace.OrganizationName()
 		spaceName := testSetup.TestSpace.SpaceName()
-		appName := generator.PrefixedRandomName("mits", "app")
-		serviceName := generator.PrefixedRandomName("mits", "service")
-		securityGroupName := generator.PrefixedRandomName("mits", "security-group")
+		appName := generator.PrefixedRandomName(tests.MariaDB.Class, "app")
+		serviceName := generator.PrefixedRandomName(tests.MariaDB.Class, "service")
+		securityGroupName := generator.PrefixedRandomName(tests.MariaDB.Class, "security-group")
 
 		By("pushing the test app without starting")
 		Expect(cf.Cf("push", appName, "--no-start", "-p", "assets/mariadbapp").Wait(timeouts.CFPush.Duration())).
