@@ -36,3 +36,4 @@ WORKDIR /minibroker-integration-tests
 COPY --from=builder /go/bin/ginkgo /usr/local/bin/ginkgo
 COPY --from=builder /usr/local/bin/cf /usr/local/bin/cf
 COPY --from=builder /minibroker-integration-tests/mits/mits.test ./mits/mits.test
+COPY ./assets/ ./mits/assets/
