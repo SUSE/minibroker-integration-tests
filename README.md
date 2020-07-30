@@ -13,6 +13,7 @@ MINIKUBE=true ./build/image.sh
 ```
 4. Run the tests with Helm:
 ```
+kubectl create namespace mits
 helm install mits \
   --namespace mits chart/mits/ \
   --set "cf.admin.username=admin" \
