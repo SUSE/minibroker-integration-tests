@@ -32,16 +32,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var serviceName string
-
-func init() {
-	serviceName = os.Getenv("SERVICE_NAME")
-	if serviceName == "" {
-		panic("SERVICE_NAME not set")
-	}
-}
-
 func main() {
+	serviceName := os.Getenv("SERVICE_NAME")
+	if serviceName == "" {
+		log.Fatal("SERVICE_NAME not set")
+	}
+
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
