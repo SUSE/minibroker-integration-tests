@@ -49,14 +49,18 @@ var _ = Describe("MariaDB", func() {
 		securityGroupName := generator.PrefixedRandomName(tests.MariaDB.Class, "security-group")
 
 		By("pushing the test app without starting")
-		Expect(cf.Cf("push", appName, "--no-start", "-p", "assets/mariadbapp").Wait(timeouts.CFPush)).
-			To(Exit(0))
+		Expect(
+			cf.Cf("push", appName, "--no-start", "-p", "assets/mariadbapp").
+				Wait(timeouts.CFPush),
+		).To(Exit(0))
 		defer func() {
 			cf.Cf("delete", appName, "-r", "-f").Wait(testSetup.ShortTimeout())
 		}()
 		By("setting the SERVICE_NAME environment variable in the app")
-		Expect(cf.Cf("set-env", appName, "SERVICE_NAME", serviceName).Wait(testSetup.ShortTimeout())).
-			To(Exit(0))
+		Expect(
+			cf.Cf("set-env", appName, "SERVICE_NAME", serviceName).
+				Wait(testSetup.ShortTimeout()),
+		).To(Exit(0))
 
 		service := mits.NewService(serviceName, serviceBrokerName, GinkgoWriter, GinkgoWriter)
 
@@ -106,17 +110,25 @@ var _ = Describe("MariaDB", func() {
 		securityGroupFile.Close()
 
 		workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
-			Expect(cf.Cf("create-security-group", securityGroupName, securityGroupFile.Name()).Wait(testSetup.ShortTimeout())).
-				To(Exit(0))
-			Expect(cf.Cf("bind-security-group", securityGroupName, orgName, spaceName, "--lifecycle", "running").Wait(testSetup.ShortTimeout())).
-				To(Exit(0))
+			Expect(
+				cf.Cf("create-security-group", securityGroupName, securityGroupFile.Name()).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
+			Expect(
+				cf.Cf("bind-security-group", securityGroupName, orgName, spaceName, "--lifecycle", "running").
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
 		})
 		defer func() {
 			workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
-				Expect(cf.Cf("unbind-security-group", securityGroupName, orgName, spaceName, "--lifecycle", "running").Wait(testSetup.ShortTimeout())).
-					To(Exit(0))
-				Expect(cf.Cf("delete-security-group", securityGroupName, "-f").Wait(testSetup.ShortTimeout())).
-					To(Exit(0))
+				Expect(
+					cf.Cf("unbind-security-group", securityGroupName, orgName, spaceName, "--lifecycle", "running").
+						Wait(testSetup.ShortTimeout()),
+				).To(Exit(0))
+				Expect(
+					cf.Cf("delete-security-group", securityGroupName, "-f").
+						Wait(testSetup.ShortTimeout()),
+				).To(Exit(0))
 			})
 		}()
 
@@ -124,7 +136,9 @@ var _ = Describe("MariaDB", func() {
 			cf.Cf("logs", appName, "--recent").Wait(testSetup.ShortTimeout())
 		}()
 		By("starting the app")
-		Expect(cf.Cf("start", appName).Wait(timeouts.CFStart)).
-			To(Exit(0))
+		Expect(
+			cf.Cf("start", appName).
+				Wait(timeouts.CFStart),
+		).To(Exit(0))
 	})
 })
