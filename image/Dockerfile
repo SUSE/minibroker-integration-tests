@@ -14,10 +14,11 @@
 
 FROM golang:1.14 AS builder
 
+ARG DUMB_INIT_VERSION="1.2.2"
 ARG CF_CLI_VERSION="6.51.0"
 
 RUN curl -L -o /usr/local/bin/dumb-init \
-      "https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64"
+      "https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_amd64"
 RUN chmod +x /usr/local/bin/dumb-init
 
 RUN go get -u github.com/onsi/ginkgo/ginkgo
