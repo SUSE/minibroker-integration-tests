@@ -114,6 +114,16 @@ var _ = Describe("MariaDB", func() {
 				cf.Cf("create-security-group", securityGroupName, securityGroupFile.Name()).
 					Wait(testSetup.ShortTimeout()),
 			).To(Exit(0))
+		})
+		defer func() {
+			workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
+				Expect(
+					cf.Cf("delete-security-group", securityGroupName, "-f").
+						Wait(testSetup.ShortTimeout()),
+				).To(Exit(0))
+			})
+		}()
+		workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
 			Expect(
 				cf.Cf("bind-security-group", securityGroupName, orgName, spaceName, "--lifecycle", "running").
 					Wait(testSetup.ShortTimeout()),
@@ -123,10 +133,6 @@ var _ = Describe("MariaDB", func() {
 			workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
 				Expect(
 					cf.Cf("unbind-security-group", securityGroupName, orgName, spaceName, "--lifecycle", "running").
-						Wait(testSetup.ShortTimeout()),
-				).To(Exit(0))
-				Expect(
-					cf.Cf("delete-security-group", securityGroupName, "-f").
 						Wait(testSetup.ShortTimeout()),
 				).To(Exit(0))
 			})
