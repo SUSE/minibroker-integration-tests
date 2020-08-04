@@ -24,9 +24,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// LoadConfig loads a configuration file from where the environment variable points to, into the
-// config interface{}.
-func LoadConfig(envConfig string, config interface{}) error {
+// LoadConfig loads a configuration file from where the environment variable points to.
+func LoadConfig(envConfig string, config *Config) error {
 	configPath, ok := os.LookupEnv(envConfig)
 	if !ok {
 		return fmt.Errorf("failed to load config: %q environment variable is not set", envConfig)
@@ -44,12 +43,36 @@ func LoadConfig(envConfig string, config interface{}) error {
 	return nil
 }
 
-// TestsConfig represents the root of the tests configuration document.
-type TestsConfig struct {
-	MariaDB    TestConfig `yaml:"mariadb"`
-	MySQL      TestConfig `yaml:"mysql"`
-	PostgreSQL TestConfig `yaml:"postgresql"`
-	Redis      TestConfig `yaml:"redis"`
+// Config is the top-level configuration definition for the test suite.
+type Config struct {
+	CF struct {
+		API struct {
+			Endpoint string `yaml:"endpoint"`
+		} `yaml:"api"`
+		Admin struct {
+			Username string `yaml:"username"`
+			Password string `yaml:"password"`
+		} `yaml:"admin"`
+	} `yaml:"cf"`
+
+	Minibroker struct {
+		API struct {
+			Endpoint string `yaml:"endpoint"`
+		} `yaml:"api"`
+	} `yaml:"minibroker"`
+
+	Tests struct {
+		MariaDB    TestConfig `yaml:"mariadb"`
+		MySQL      TestConfig `yaml:"mysql"`
+		PostgreSQL TestConfig `yaml:"postgresql"`
+		Redis      TestConfig `yaml:"redis"`
+	} `yaml:"tests"`
+
+	Timeouts struct {
+		CFPush          time.Duration `yaml:"cf_push"`
+		CFStart         time.Duration `yaml:"cf_start"`
+		CFCreateService time.Duration `yaml:"cf_create_service"`
+	} `yaml:"timeouts"`
 }
 
 // TestConfig represents the configuration for an individual test.
@@ -57,11 +80,4 @@ type TestConfig struct {
 	Enabled bool   `yaml:"enabled"`
 	Class   string `yaml:"class"`
 	Plan    string `yaml:"plan"`
-}
-
-// TimeoutsConfig represents the root of the timeouts configuration document.
-type TimeoutsConfig struct {
-	CFPush          time.Duration `yaml:"cf_push"`
-	CFStart         time.Duration `yaml:"cf_start"`
-	CFCreateService time.Duration `yaml:"cf_create_service"`
 }

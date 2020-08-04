@@ -16,27 +16,13 @@
 
 ---
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
   name: {{ printf "%s-config" .Release.Name | quote }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "mits.labels" . | nindent 4 }}
-data:
-{{- range $file, $contents := .Files.Glob "assets/config/*" }}
-  {{ $file | base | quote }}: |
-    {{- tpl ($contents | toString) $ | nindent 4 }}
-{{- end }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ printf "%s-run-script" .Release.Name | quote }}
-  namespace: {{ .Release.Namespace | quote }}
-  labels:
-    {{- include "mits.labels" . | nindent 4 }}
-data:
-  run.sh: |
-    {{- with $bytes := .Files.Get "assets/run.sh.tmpl" }}
-    {{- tpl ($bytes | toString) $ | nindent 4 }}
-    {{- end }}
+stringData:
+  config.yaml: |-
+    ---
+    {{- .Values.config | toYaml | nindent 4 }}

@@ -22,7 +22,7 @@ import (
 
 var _ = Describe("MySQL", func() {
 	BeforeEach(func() {
-		if !tests.MySQL.Enabled {
+		if !config.Tests.MySQL.Enabled {
 			Skip("Test is disabled")
 		}
 	})

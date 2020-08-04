@@ -42,24 +42,8 @@ spec:
         - -flakeAttempts={{ .Values.ginkgo.flake_attempts }}
         - ./mits/mits.test
         env:
-        - name: CONFIG_TESTS
-          value: {{ printf "%s/tests.yaml" $configMountPath | quote }}
-        - name: CONFIG_TIMEOUTS
-          value: {{ printf "%s/timeouts.yaml" $configMountPath | quote }}
-        - name: API_ENDPOINT
-          value: {{ .Values.cf.api | quote }}
-        - name: SERVICE_BROKER_URL
-          value: {{ .Values.minibroker.service_broker.url | quote }}
-        - name: CF_ADMIN_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ printf "%s-cf-admin-cred" .Release.Name | quote }}
-              key: username
-        - name: CF_ADMIN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ printf "%s-cf-admin-cred" .Release.Name | quote }}
-              key: password
+        - name: CONFIG_PATH
+          value: {{ printf "%s/config.yaml" $configMountPath | quote }}
         volumeMounts:
         - name: config-volume
           mountPath: {{ $configMountPath | quote }}
@@ -67,5 +51,5 @@ spec:
       restartPolicy: Never
       volumes:
       - name: config-volume
-        configMap:
-          name: {{ printf "%s-config" .Release.Name | quote }}
+        secret:
+          secretName: {{ printf "%s-config" .Release.Name | quote }}

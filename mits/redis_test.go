@@ -22,7 +22,7 @@ import (
 
 var _ = Describe("Redis", func() {
 	BeforeEach(func() {
-		if !tests.Redis.Enabled {
+		if !config.Tests.Redis.Enabled {
 			Skip("Test is disabled")
 		}
 	})

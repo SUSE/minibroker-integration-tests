@@ -17,7 +17,6 @@
 package mits_test
 
 import (
-	"os"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -25,7 +24,7 @@ import (
 	. "github.com/onsi/gomega/gexec"
 
 	"github.com/cloudfoundry-incubator/cf-test-helpers/cf"
-	"github.com/cloudfoundry-incubator/cf-test-helpers/config"
+	helpersConfig "github.com/cloudfoundry-incubator/cf-test-helpers/config"
 	"github.com/cloudfoundry-incubator/cf-test-helpers/generator"
 	"github.com/cloudfoundry-incubator/cf-test-helpers/workflowhelpers"
 
@@ -33,12 +32,10 @@ import (
 )
 
 var (
-	tests    mits.TestsConfig
-	timeouts mits.TimeoutsConfig
+	config mits.Config
 
 	testSetup         *workflowhelpers.ReproducibleTestSuiteSetup
 	serviceBrokerName string
-	serviceBrokerURL  string
 )
 
 func TestMits(t *testing.T) {
@@ -47,52 +44,60 @@ func TestMits(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	err := mits.LoadConfig("CONFIG_TESTS", &tests)
-	Expect(err).NotTo(HaveOccurred())
-	err = mits.LoadConfig("CONFIG_TIMEOUTS", &timeouts)
+	err := mits.LoadConfig("CONFIG_PATH", &config)
 	Expect(err).NotTo(HaveOccurred())
 
-	apiEndpoint := os.Getenv("API_ENDPOINT")
-	adminUser := os.Getenv("CF_ADMIN_USERNAME")
-	adminPassword := os.Getenv("CF_ADMIN_PASSWORD")
 	serviceBrokerName = generator.PrefixedRandomName("mits", "minibroker")
-	serviceBrokerURL = os.Getenv("SERVICE_BROKER_URL")
 
-	cfg := config.Config{
+	cfg := helpersConfig.Config{
 		TimeoutScale:      2.0,
 		NamePrefix:        "mits",
-		ApiEndpoint:       apiEndpoint,
-		AdminUser:         adminUser,
-		AdminPassword:     adminPassword,
+		ApiEndpoint:       config.CF.API.Endpoint,
+		AdminUser:         config.CF.Admin.Username,
+		AdminPassword:     config.CF.Admin.Password,
 		SkipSSLValidation: true,
 	}
 	testSetup = workflowhelpers.NewTestSuiteSetup(&cfg)
 	testSetup.Setup()
 
 	workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
-		Expect(cf.Cf("create-service-broker", serviceBrokerName, "user", "pass", serviceBrokerURL).Wait(testSetup.ShortTimeout())).To(Exit(0))
-		if tests.MariaDB.Enabled {
-			Expect(cf.Cf("enable-service-access", tests.MariaDB.Class, "-b", serviceBrokerName).Wait(testSetup.ShortTimeout())).
-				To(Exit(0))
+		Expect(
+			cf.Cf("create-service-broker", serviceBrokerName, "user", "pass", config.Minibroker.API.Endpoint).
+				Wait(testSetup.ShortTimeout()),
+		).To(Exit(0))
+		if config.Tests.MariaDB.Enabled {
+			Expect(
+				cf.Cf("enable-service-access", config.Tests.MariaDB.Class, "-b", serviceBrokerName).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
 		}
-		if tests.MySQL.Enabled {
-			Expect(cf.Cf("enable-service-access", tests.MySQL.Class, "-b", serviceBrokerName).Wait(testSetup.ShortTimeout())).
-				To(Exit(0))
+		if config.Tests.MySQL.Enabled {
+			Expect(
+				cf.Cf("enable-service-access", config.Tests.MySQL.Class, "-b", serviceBrokerName).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
 		}
-		if tests.PostgreSQL.Enabled {
-			Expect(cf.Cf("enable-service-access", tests.PostgreSQL.Class, "-b", serviceBrokerName).Wait(testSetup.ShortTimeout())).
-				To(Exit(0))
+		if config.Tests.PostgreSQL.Enabled {
+			Expect(
+				cf.Cf("enable-service-access", config.Tests.PostgreSQL.Class, "-b", serviceBrokerName).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
 		}
-		if tests.Redis.Enabled {
-			Expect(cf.Cf("enable-service-access", tests.Redis.Class, "-b", serviceBrokerName).Wait(testSetup.ShortTimeout())).
-				To(Exit(0))
+		if config.Tests.Redis.Enabled {
+			Expect(
+				cf.Cf("enable-service-access", config.Tests.Redis.Class, "-b", serviceBrokerName).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
 		}
 	})
 })
 
 var _ = AfterSuite(func() {
 	workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
-		Expect(cf.Cf("delete-service-broker", serviceBrokerName, "-f").Wait(testSetup.ShortTimeout())).To(Exit(0))
+		Expect(
+			cf.Cf("delete-service-broker", serviceBrokerName, "-f").
+				Wait(testSetup.ShortTimeout()),
+		).To(Exit(0))
 	})
 
 	testSetup.Teardown()
