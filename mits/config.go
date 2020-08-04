@@ -61,32 +61,7 @@ type TestConfig struct {
 
 // TimeoutsConfig represents the root of the timeouts configuration document.
 type TimeoutsConfig struct {
-	CFPush          Timeout `yaml:"cf_push"`
-	CFStart         Timeout `yaml:"cf_start"`
-	CFCreateService Timeout `yaml:"cf_create_service"`
-}
-
-// Timeout is a wrapper around time.Duration with a custom YAML unmarshal logic.
-type Timeout time.Duration
-
-// UnmarshalYAML unmarshals a string into a Timeout.
-func (t *Timeout) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var str string
-	if err := unmarshal(&str); err != nil {
-		return err
-	}
-
-	d, err := time.ParseDuration(str)
-	if err != nil {
-		return err
-	}
-
-	*t = Timeout(d)
-
-	return nil
-}
-
-// Duration returns the Timeout as time.Duration.
-func (t *Timeout) Duration() time.Duration {
-	return time.Duration(*t)
+	CFPush          time.Duration `yaml:"cf_push"`
+	CFStart         time.Duration `yaml:"cf_start"`
+	CFCreateService time.Duration `yaml:"cf_create_service"`
 }

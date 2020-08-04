@@ -49,7 +49,7 @@ var _ = Describe("MariaDB", func() {
 		securityGroupName := generator.PrefixedRandomName(tests.MariaDB.Class, "security-group")
 
 		By("pushing the test app without starting")
-		Expect(cf.Cf("push", appName, "--no-start", "-p", "assets/mariadbapp").Wait(timeouts.CFPush.Duration())).
+		Expect(cf.Cf("push", appName, "--no-start", "-p", "assets/mariadbapp").Wait(timeouts.CFPush)).
 			To(Exit(0))
 		defer func() {
 			cf.Cf("delete", appName, "-r", "-f").Wait(testSetup.ShortTimeout())
@@ -67,12 +67,12 @@ var _ = Describe("MariaDB", func() {
 			},
 		}
 		By("creating the service instance")
-		err := service.Create(tests.MariaDB, params, timeouts.CFCreateService.Duration())
+		err := service.Create(tests.MariaDB, params, timeouts.CFCreateService)
 		Expect(err).NotTo(HaveOccurred())
 		defer service.Destroy(testSetup.ShortTimeout())
 
 		By("waiting for the service instance to become ready")
-		err = service.WaitForCreate(timeouts.CFCreateService.Duration())
+		err = service.WaitForCreate(timeouts.CFCreateService)
 		Expect(err).NotTo(HaveOccurred())
 
 		By("binding the service instance to the app")
@@ -124,7 +124,7 @@ var _ = Describe("MariaDB", func() {
 			cf.Cf("logs", appName, "--recent").Wait(testSetup.ShortTimeout())
 		}()
 		By("starting the app")
-		Expect(cf.Cf("start", appName).Wait(timeouts.CFStart.Duration())).
+		Expect(cf.Cf("start", appName).Wait(timeouts.CFStart)).
 			To(Exit(0))
 	})
 })
