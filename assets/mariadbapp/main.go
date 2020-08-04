@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/cloudfoundry-community/go-cfenv"
@@ -65,7 +66,7 @@ func main() {
 	config.User = uri.User.String()
 	config.Net = "tcp"
 	config.Addr = uri.Hostname()
-	config.DBName = uri.Path
+	config.DBName = strings.TrimPrefix(uri.Path, "/")
 	uriStr := config.FormatDSN()
 	fmt.Printf("Connecting to %q\n", uriStr)
 
