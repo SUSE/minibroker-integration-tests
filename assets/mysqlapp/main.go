@@ -39,12 +39,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	mariadb, err := appEnv.Services.WithName(serviceName)
+	mysqlService, err := appEnv.Services.WithName(serviceName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	spec, ok := mariadb.Credentials["uri"].(string)
+	spec, ok := mysqlService.Credentials["uri"].(string)
 	if !ok {
 		log.Fatal(fmt.Errorf("URI not supplied"))
 	}

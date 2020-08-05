@@ -1,4 +1,4 @@
-module github.com/SUSE/minibroker-integration-tests/assets/mariadbapp
+module github.com/SUSE/minibroker-integration-tests/assets/mysqlapp
 
 go 1.14
 

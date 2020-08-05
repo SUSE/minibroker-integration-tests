@@ -51,7 +51,7 @@ var _ = Describe("MariaDB", func() {
 
 		By("pushing the test app without starting")
 		Expect(
-			cf.Cf("push", appName, "--no-start", "-p", "assets/mariadbapp").
+			cf.Cf("push", appName, "--no-start", "-p", "assets/mysqlapp").
 				Wait(mitsConfig.Timeouts.CFPush),
 		).To(Exit(0))
 		defer func() {
