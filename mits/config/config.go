@@ -65,11 +65,7 @@ type Config struct {
 		Redis      TestConfig `yaml:"redis"`
 	} `yaml:"tests"`
 
-	Timeouts struct {
-		CFPush          time.Duration `yaml:"cf_push"`
-		CFStart         time.Duration `yaml:"cf_start"`
-		CFCreateService time.Duration `yaml:"cf_create_service"`
-	} `yaml:"timeouts"`
+	Timeouts Timeouts `yaml:"timeouts"`
 }
 
 // TestConfig represents the configuration for an individual test.
@@ -77,4 +73,11 @@ type TestConfig struct {
 	Enabled bool   `yaml:"enabled"`
 	Class   string `yaml:"class"`
 	Plan    string `yaml:"plan"`
+}
+
+// Timeouts aggregates the timeouts configuration.
+type Timeouts struct {
+	CFPush          time.Duration `yaml:"cf_push"`
+	CFStart         time.Duration `yaml:"cf_start"`
+	CFCreateService time.Duration `yaml:"cf_create_service"`
 }
