@@ -3,7 +3,7 @@
 imageOverride: ~
 
 ginkgo:
-  nodes: 1
+  nodes: 5
   flake_attempts: 1
   slow_spec_threshold: 300 # time in seconds.
   verbose: false
