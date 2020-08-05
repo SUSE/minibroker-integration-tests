@@ -31,6 +31,10 @@ config:
       enabled: true
       class: postgresql
       plan: 11-7-0
+    rabbitmq:
+      enabled: true
+      class: rabbitmq
+      plan: 3-8-2
     redis:
       enabled: true
       class: redis
