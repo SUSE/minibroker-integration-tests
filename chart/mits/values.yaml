@@ -26,6 +26,7 @@ config:
     mysql:
       enabled: true
       class: mysql
+      plan: 5-7-30
     postgresql:
       enabled: true
       class: postgresql
