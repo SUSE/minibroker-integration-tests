@@ -16,7 +16,7 @@ MINIKUBE=true ./build/image.sh
 kubectl create namespace mits
 helm install mits \
   --namespace mits chart/mits/ \
-  --set "cf.admin.username=admin" \
-  --set "cf.admin.password=<password for the admin user>" \
-  --set "cf.api=<URL for the KubeCF API>"
+  --set "config.cf.admin.username=admin" \
+  --set "config.cf.admin.password=<password for the admin user>" \
+  --set "config.cf.api.endpoint=<URL for the KubeCF API>"
 ```
