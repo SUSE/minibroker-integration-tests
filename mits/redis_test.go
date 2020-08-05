@@ -18,6 +18,8 @@ package mits_test
 
 import (
 	. "github.com/onsi/ginkgo"
+
+	"github.com/SUSE/minibroker-integration-tests/mits"
 )
 
 var _ = Describe("Redis", func() {
@@ -25,5 +27,20 @@ var _ = Describe("Redis", func() {
 		if !mitsConfig.Tests.Redis.Enabled {
 			Skip("Test is disabled")
 		}
+	})
+
+	It("should deploy and connect", func() {
+		mits.SimpleAppAndService(
+			testSetup,
+			mitsConfig.Tests.Redis,
+			mitsConfig.Timeouts,
+			serviceBrokerName,
+			"assets/redisapp",
+			map[string]interface{}{
+				"cluster": map[string]interface{}{
+					"enabled": false,
+				},
+			},
+		)
 	})
 })

@@ -34,6 +34,7 @@ config:
     redis:
       enabled: true
       class: redis
+      plan: 5-0-7
   # Each timeout is parsed as a golang time.Duration as described in
   # https://golang.org/pkg/time/#ParseDuration.
   timeouts:
