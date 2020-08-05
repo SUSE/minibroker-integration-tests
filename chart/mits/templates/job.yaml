@@ -14,7 +14,6 @@
    limitations under the License.
 */ -}}
 
-{{- $configMountPath := "/mits/config" }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -43,10 +42,10 @@ spec:
         - ./mits/mits.test
         env:
         - name: CONFIG_PATH
-          value: {{ printf "%s/config.yaml" $configMountPath | quote }}
+          value: /mits/config/config.yaml
         volumeMounts:
         - name: config-volume
-          mountPath: {{ $configMountPath | quote }}
+          mountPath: /mits/config
           readOnly: true
       restartPolicy: Never
       volumes:
