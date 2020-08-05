@@ -186,6 +186,7 @@ func (service *Service) Credentials(timeout time.Duration) (map[string]interface
 	}
 
 	// cf curl exits with code 22 if an error is reported back.
+	// On success, it is returning non-zero codes, hence the unusual check below.
 	if exitCode := session.ExitCode(); exitCode == 22 {
 		return nil, fmt.Errorf("failed to get credentials for service instance: cf service-key %s %s exited with code %d", service.name, serviceKey, exitCode)
 	}
