@@ -18,49 +18,23 @@ package config
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"time"
 
 	"gopkg.in/yaml.v2"
 )
 
-// ConfigLoader wraps the Load method for loading a configuration file.
-type ConfigLoader struct {
-	openFile         func(name string) (io.ReadCloser, error)
-	newConfigDecoder func(r io.Reader) configDecoder
-}
-
-// NewYAMLConfigLoader constructs a new ConfigLoader for loading YAML files.
-func NewYAMLConfigLoader() *ConfigLoader {
-	return &ConfigLoader{
-		openFile: openFile,
-		newConfigDecoder: func(r io.Reader) configDecoder {
-			decoder := yaml.NewDecoder(r)
-			decoder.SetStrict(true)
-			return decoder
-		},
-	}
-}
-
-func openFile(name string) (io.ReadCloser, error) {
-	return os.Open(name)
-}
-
-type configDecoder interface {
-	Decode(interface{}) error
-}
-
 // Load loads a configuration file from configPath.
-func (cl *ConfigLoader) Load(configPath string) (*Config, error) {
-	configFile, err := cl.openFile(configPath)
+func Load(configPath string) (*Config, error) {
+	configFile, err := os.Open(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 	defer configFile.Close()
-	configDecoder := cl.newConfigDecoder(configFile)
+	decoder := yaml.NewDecoder(configFile)
+	decoder.SetStrict(true)
 	var config Config
-	if err := configDecoder.Decode(&config); err != nil {
+	if err := decoder.Decode(&config); err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 	return &config, nil

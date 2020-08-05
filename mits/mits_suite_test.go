@@ -47,8 +47,7 @@ func TestMits(t *testing.T) {
 var _ = BeforeSuite(func() {
 	configPath, ok := os.LookupEnv("CONFIG_PATH")
 	Expect(ok).To(BeTrue())
-	configLoader := config.NewYAMLConfigLoader()
-	c, err := configLoader.Load(configPath)
+	c, err := config.Load(configPath)
 	Expect(err).NotTo(HaveOccurred())
 	mitsConfig = c
 
