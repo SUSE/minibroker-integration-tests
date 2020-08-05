@@ -2,25 +2,39 @@
 # property.
 imageOverride: ~
 
-cf:
-  api: ~
-  admin:
-    username: ~
-    password: ~
-
-minibroker:
-  service_broker:
-    url: http://minibroker-minibroker.minibroker.svc
-
 ginkgo:
-  nodes: 4
+  nodes: 1
+  flake_attempts: 1
+  slow_spec_threshold: 300 # time in seconds.
+  verbose: false
 
-tests:
-  mariadb:
-    enabled: true
-  mysql:
-    enabled: true
-  postgresql:
-    enabled: true
-  redis:
-    enabled: true
+config:
+  cf:
+    api:
+      endpoint: ~
+    admin:
+      username: ~
+      password: ~
+  minibroker:
+    api:
+      endpoint: http://minibroker-minibroker.minibroker.svc
+  tests:
+    mariadb:
+      enabled: true
+      class: mariadb
+      plan: 10-3-22
+    mysql:
+      enabled: true
+      class: mysql
+    postgresql:
+      enabled: true
+      class: postgresql
+    redis:
+      enabled: true
+      class: redis
+  # Each timeout is parsed as a golang time.Duration as described in
+  # https://golang.org/pkg/time/#ParseDuration.
+  timeouts:
+    cf_push: 1m
+    cf_start: 5m
+    cf_create_service: 5m

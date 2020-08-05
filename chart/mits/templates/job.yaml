@@ -14,8 +14,6 @@
    limitations under the License.
 */ -}}
 
-{{- $configMountPath := "/mits/config" }}
-{{- $runMountPath := "/mits/run.sh" }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -33,41 +31,24 @@ spec:
       - name: mits
         image: {{ default (printf "splatform/mits:%s" .Chart.Version) .Values.imageOverride | quote }}
         imagePullPolicy: IfNotPresent
-        command: [bash]
-        args: [{{ $runMountPath | quote }}]
+        args:
+        - ginkgo
+        {{- if .Values.ginkgo.verbose }}
+        - -v
+        {{- end }}
+        - -nodes={{ .Values.ginkgo.nodes }}
+        - -slowSpecThreshold={{ .Values.ginkgo.slow_spec_threshold }}
+        - -flakeAttempts={{ .Values.ginkgo.flake_attempts }}
+        - ./mits/mits.test
         env:
-        - name: CONFIG_TESTS
-          value: {{ printf "%s/tests.yaml" $configMountPath | quote }}
-        - name: CF_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: {{ printf "%s-cf-cred" .Release.Name | quote }}
-              key: username
-        - name: CF_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ printf "%s-cf-cred" .Release.Name | quote }}
-              key: password
-        - name: CF_ORG
-          value: {{ printf "mits-%s" (randAlphaNum 8) | quote }}
-        - name: CF_SPACE
-          value: {{ printf "mits-%s" (randAlphaNum 8) | quote }}
-        - name: CF_SERVICE_BROKER_NAME
-          value: {{ printf "minibroker-%s" (randAlphaNum 8) | quote }}
+        - name: CONFIG_PATH
+          value: /mits/config/config.yaml
         volumeMounts:
         - name: config-volume
-          mountPath: {{ $configMountPath | quote }}
+          mountPath: /mits/config
           readOnly: true
-        - name: run-script-volume
-          mountPath: {{ $runMountPath | quote }}
-          readOnly: true
-          subPath: run.sh
       restartPolicy: Never
       volumes:
       - name: config-volume
-        configMap:
-          name: {{ printf "%s-config" .Release.Name | quote }}
-      - name: run-script-volume
-        configMap:
-          name: {{ printf "%s-run-script" .Release.Name | quote }}
-          defaultMode: 0700
+        secret:
+          secretName: {{ printf "%s-config" .Release.Name | quote }}

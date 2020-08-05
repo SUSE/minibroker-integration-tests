@@ -1,4 +1,4 @@
-{{- /*
+/*
    Copyright 2020 SUSE
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,9 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-*/ -}}
+*/
 
----
-{{ .Values.tests | toYaml }}
+/*
+MITS are the integration tests for running Minibroker with Cloud Foundry.
+*/
+package mits

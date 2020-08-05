@@ -17,45 +17,92 @@
 package mits_test
 
 import (
-	"fmt"
-	"log"
 	"os"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gexec"
 
-	"gopkg.in/yaml.v2"
+	"github.com/cloudfoundry-incubator/cf-test-helpers/cf"
+	helpersConfig "github.com/cloudfoundry-incubator/cf-test-helpers/config"
+	"github.com/cloudfoundry-incubator/cf-test-helpers/generator"
+	"github.com/cloudfoundry-incubator/cf-test-helpers/workflowhelpers"
 
-	"github.com/SUSE/minibroker-integration-tests/mits"
+	"github.com/SUSE/minibroker-integration-tests/mits/config"
 )
 
-var testsConfig mits.TestsConfig
+var (
+	mitsConfig *config.Config
 
-func init() {
-	if err := loadConfig("CONFIG_TESTS", &testsConfig); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func loadConfig(envConfig string, config interface{}) error {
-	configPath, ok := os.LookupEnv(envConfig)
-	if !ok {
-		return fmt.Errorf("failed to load config: %q environment variable is not set", envConfig)
-	}
-	configFile, err := os.Open(configPath)
-	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
-	}
-	defer configFile.Close()
-	configDecoder := yaml.NewDecoder(configFile)
-	if err := configDecoder.Decode(config); err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
-	}
-	return nil
-}
+	testSetup         *workflowhelpers.ReproducibleTestSuiteSetup
+	serviceBrokerName string
+)
 
 func TestMits(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Mits Suite")
 }
+
+var _ = BeforeSuite(func() {
+	configPath, ok := os.LookupEnv("CONFIG_PATH")
+	Expect(ok).To(BeTrue())
+	c, err := config.Load(configPath)
+	Expect(err).NotTo(HaveOccurred())
+	mitsConfig = c
+
+	serviceBrokerName = generator.PrefixedRandomName("mits", "minibroker")
+
+	cfg := helpersConfig.Config{
+		TimeoutScale:      2.0,
+		NamePrefix:        "mits",
+		ApiEndpoint:       mitsConfig.CF.API.Endpoint,
+		AdminUser:         mitsConfig.CF.Admin.Username,
+		AdminPassword:     mitsConfig.CF.Admin.Password,
+		SkipSSLValidation: true,
+	}
+	testSetup = workflowhelpers.NewTestSuiteSetup(&cfg)
+	testSetup.Setup()
+
+	workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
+		Expect(
+			cf.Cf("create-service-broker", serviceBrokerName, "user", "pass", mitsConfig.Minibroker.API.Endpoint).
+				Wait(testSetup.ShortTimeout()),
+		).To(Exit(0))
+		if mitsConfig.Tests.MariaDB.Enabled {
+			Expect(
+				cf.Cf("enable-service-access", mitsConfig.Tests.MariaDB.Class, "-b", serviceBrokerName).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
+		}
+		if mitsConfig.Tests.MySQL.Enabled {
+			Expect(
+				cf.Cf("enable-service-access", mitsConfig.Tests.MySQL.Class, "-b", serviceBrokerName).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
+		}
+		if mitsConfig.Tests.PostgreSQL.Enabled {
+			Expect(
+				cf.Cf("enable-service-access", mitsConfig.Tests.PostgreSQL.Class, "-b", serviceBrokerName).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
+		}
+		if mitsConfig.Tests.Redis.Enabled {
+			Expect(
+				cf.Cf("enable-service-access", mitsConfig.Tests.Redis.Class, "-b", serviceBrokerName).
+					Wait(testSetup.ShortTimeout()),
+			).To(Exit(0))
+		}
+	})
+})
+
+var _ = AfterSuite(func() {
+	workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
+		Expect(
+			cf.Cf("delete-service-broker", serviceBrokerName, "-f").
+				Wait(testSetup.ShortTimeout()),
+		).To(Exit(0))
+	})
+
+	testSetup.Teardown()
+})

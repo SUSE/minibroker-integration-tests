@@ -21,10 +21,8 @@ import (
 )
 
 var _ = Describe("MySQL", func() {
-	testConfig := testsConfig.MySQL
-
 	BeforeEach(func() {
-		if !testConfig.Enabled {
+		if !mitsConfig.Tests.MySQL.Enabled {
 			Skip("Test is disabled")
 		}
 	})

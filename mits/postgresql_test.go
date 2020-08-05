@@ -21,10 +21,8 @@ import (
 )
 
 var _ = Describe("PostgreSQL", func() {
-	testConfig := testsConfig.PostgreSQL
-
 	BeforeEach(func() {
-		if !testConfig.Enabled {
+		if !mitsConfig.Tests.PostgreSQL.Enabled {
 			Skip("Test is disabled")
 		}
 	})
