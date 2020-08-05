@@ -23,13 +23,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/signal"
 	"strings"
-	"syscall"
 
 	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
@@ -37,9 +34,6 @@ func main() {
 	if serviceName == "" {
 		log.Fatal("SERVICE_NAME not set")
 	}
-
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	appEnv, err := cfenv.Current()
 	if err != nil {
