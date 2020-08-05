@@ -18,6 +18,10 @@ package mits_test
 
 import (
 	. "github.com/onsi/ginkgo"
+
+	"github.com/cloudfoundry-incubator/cf-test-helpers/generator"
+
+	"github.com/SUSE/minibroker-integration-tests/mits"
 )
 
 var _ = Describe("MySQL", func() {
@@ -25,5 +29,19 @@ var _ = Describe("MySQL", func() {
 		if !mitsConfig.Tests.MySQL.Enabled {
 			Skip("Test is disabled")
 		}
+	})
+
+	It("should deploy and connect", func() {
+		mits.SimpleAppAndService(
+			testSetup,
+			mitsConfig.Tests.MySQL,
+			mitsConfig.Timeouts,
+			serviceBrokerName,
+			"assets/mysqlapp",
+			map[string]interface{}{
+				"mysqlDatabase": generator.PrefixedRandomName(mitsConfig.Tests.MySQL.Class, "db"),
+				"mysqlUser":     generator.PrefixedRandomName(mitsConfig.Tests.MySQL.Class, "user"),
+			},
+		)
 	})
 })
