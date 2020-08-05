@@ -17,6 +17,7 @@
 package mits_test
 
 import (
+	"os"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -28,11 +29,11 @@ import (
 	"github.com/cloudfoundry-incubator/cf-test-helpers/generator"
 	"github.com/cloudfoundry-incubator/cf-test-helpers/workflowhelpers"
 
-	"github.com/SUSE/minibroker-integration-tests/mits"
+	"github.com/SUSE/minibroker-integration-tests/mits/config"
 )
 
 var (
-	config mits.Config
+	mitsConfig *config.Config
 
 	testSetup         *workflowhelpers.ReproducibleTestSuiteSetup
 	serviceBrokerName string
@@ -44,17 +45,21 @@ func TestMits(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	err := mits.LoadConfig("CONFIG_PATH", &config)
+	configPath, ok := os.LookupEnv("CONFIG_PATH")
+	Expect(ok).To(BeTrue())
+	configLoader := config.NewYAMLConfigLoader()
+	c, err := configLoader.Load(configPath)
 	Expect(err).NotTo(HaveOccurred())
+	mitsConfig = c
 
 	serviceBrokerName = generator.PrefixedRandomName("mits", "minibroker")
 
 	cfg := helpersConfig.Config{
 		TimeoutScale:      2.0,
 		NamePrefix:        "mits",
-		ApiEndpoint:       config.CF.API.Endpoint,
-		AdminUser:         config.CF.Admin.Username,
-		AdminPassword:     config.CF.Admin.Password,
+		ApiEndpoint:       mitsConfig.CF.API.Endpoint,
+		AdminUser:         mitsConfig.CF.Admin.Username,
+		AdminPassword:     mitsConfig.CF.Admin.Password,
 		SkipSSLValidation: true,
 	}
 	testSetup = workflowhelpers.NewTestSuiteSetup(&cfg)
@@ -62,30 +67,30 @@ var _ = BeforeSuite(func() {
 
 	workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
 		Expect(
-			cf.Cf("create-service-broker", serviceBrokerName, "user", "pass", config.Minibroker.API.Endpoint).
+			cf.Cf("create-service-broker", serviceBrokerName, "user", "pass", mitsConfig.Minibroker.API.Endpoint).
 				Wait(testSetup.ShortTimeout()),
 		).To(Exit(0))
-		if config.Tests.MariaDB.Enabled {
+		if mitsConfig.Tests.MariaDB.Enabled {
 			Expect(
-				cf.Cf("enable-service-access", config.Tests.MariaDB.Class, "-b", serviceBrokerName).
+				cf.Cf("enable-service-access", mitsConfig.Tests.MariaDB.Class, "-b", serviceBrokerName).
 					Wait(testSetup.ShortTimeout()),
 			).To(Exit(0))
 		}
-		if config.Tests.MySQL.Enabled {
+		if mitsConfig.Tests.MySQL.Enabled {
 			Expect(
-				cf.Cf("enable-service-access", config.Tests.MySQL.Class, "-b", serviceBrokerName).
+				cf.Cf("enable-service-access", mitsConfig.Tests.MySQL.Class, "-b", serviceBrokerName).
 					Wait(testSetup.ShortTimeout()),
 			).To(Exit(0))
 		}
-		if config.Tests.PostgreSQL.Enabled {
+		if mitsConfig.Tests.PostgreSQL.Enabled {
 			Expect(
-				cf.Cf("enable-service-access", config.Tests.PostgreSQL.Class, "-b", serviceBrokerName).
+				cf.Cf("enable-service-access", mitsConfig.Tests.PostgreSQL.Class, "-b", serviceBrokerName).
 					Wait(testSetup.ShortTimeout()),
 			).To(Exit(0))
 		}
-		if config.Tests.Redis.Enabled {
+		if mitsConfig.Tests.Redis.Enabled {
 			Expect(
-				cf.Cf("enable-service-access", config.Tests.Redis.Class, "-b", serviceBrokerName).
+				cf.Cf("enable-service-access", mitsConfig.Tests.Redis.Class, "-b", serviceBrokerName).
 					Wait(testSetup.ShortTimeout()),
 			).To(Exit(0))
 		}

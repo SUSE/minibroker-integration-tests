@@ -14,33 +14,56 @@
    limitations under the License.
 */
 
-package mits
+package config
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"time"
 
 	"gopkg.in/yaml.v2"
 )
 
-// LoadConfig loads a configuration file from where the environment variable points to.
-func LoadConfig(envConfig string, config *Config) error {
-	configPath, ok := os.LookupEnv(envConfig)
-	if !ok {
-		return fmt.Errorf("failed to load config: %q environment variable is not set", envConfig)
+// ConfigLoader wraps the Load method for loading a configuration file.
+type ConfigLoader struct {
+	openFile         func(name string) (io.ReadCloser, error)
+	newConfigDecoder func(r io.Reader) configDecoder
+}
+
+// NewYAMLConfigLoader constructs a new ConfigLoader for loading YAML files.
+func NewYAMLConfigLoader() *ConfigLoader {
+	return &ConfigLoader{
+		openFile: openFile,
+		newConfigDecoder: func(r io.Reader) configDecoder {
+			decoder := yaml.NewDecoder(r)
+			decoder.SetStrict(true)
+			return decoder
+		},
 	}
-	configFile, err := os.Open(configPath)
+}
+
+func openFile(name string) (io.ReadCloser, error) {
+	return os.Open(name)
+}
+
+type configDecoder interface {
+	Decode(interface{}) error
+}
+
+// Load loads a configuration file from configPath.
+func (cl *ConfigLoader) Load(configPath string) (*Config, error) {
+	configFile, err := cl.openFile(configPath)
 	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
+		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 	defer configFile.Close()
-	configDecoder := yaml.NewDecoder(configFile)
-	configDecoder.SetStrict(true)
-	if err := configDecoder.Decode(config); err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
+	configDecoder := cl.newConfigDecoder(configFile)
+	var config Config
+	if err := configDecoder.Decode(&config); err != nil {
+		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
-	return nil
+	return &config, nil
 }
 
 // Config is the top-level configuration definition for the test suite.

@@ -27,6 +27,8 @@ import (
 
 	"github.com/cloudfoundry-incubator/cf-test-helpers/cf"
 	"github.com/onsi/gomega/gexec"
+
+	"github.com/SUSE/minibroker-integration-tests/mits/config"
 )
 
 const serviceKey = "test-credentials"
@@ -59,7 +61,7 @@ func NewService(
 }
 
 // Create creates the service instance on CF.
-func (service *Service) Create(testConfig TestConfig, params map[string]interface{}, timeout time.Duration) error {
+func (service *Service) Create(testConfig config.TestConfig, params map[string]interface{}, timeout time.Duration) error {
 	paramsBytes, err := json.Marshal(params)
 	if err != nil {
 		return fmt.Errorf("failed to create service instance: %w", err)

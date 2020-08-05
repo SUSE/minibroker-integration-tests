@@ -28,15 +28,16 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
 
-	"github.com/SUSE/minibroker-integration-tests/mits"
 	"github.com/cloudfoundry-incubator/cf-test-helpers/cf"
 	"github.com/cloudfoundry-incubator/cf-test-helpers/generator"
 	"github.com/cloudfoundry-incubator/cf-test-helpers/workflowhelpers"
+
+	"github.com/SUSE/minibroker-integration-tests/mits"
 )
 
 var _ = Describe("MariaDB", func() {
 	BeforeEach(func() {
-		if !config.Tests.MariaDB.Enabled {
+		if !mitsConfig.Tests.MariaDB.Enabled {
 			Skip("Test is disabled")
 		}
 	})
@@ -44,14 +45,14 @@ var _ = Describe("MariaDB", func() {
 	It("should deploy and connect", func() {
 		orgName := testSetup.TestSpace.OrganizationName()
 		spaceName := testSetup.TestSpace.SpaceName()
-		appName := generator.PrefixedRandomName(config.Tests.MariaDB.Class, "app")
-		serviceName := generator.PrefixedRandomName(config.Tests.MariaDB.Class, "service")
-		securityGroupName := generator.PrefixedRandomName(config.Tests.MariaDB.Class, "security-group")
+		appName := generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "app")
+		serviceName := generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "service")
+		securityGroupName := generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "security-group")
 
 		By("pushing the test app without starting")
 		Expect(
 			cf.Cf("push", appName, "--no-start", "-p", "assets/mariadbapp").
-				Wait(config.Timeouts.CFPush),
+				Wait(mitsConfig.Timeouts.CFPush),
 		).To(Exit(0))
 		defer func() {
 			cf.Cf("delete", appName, "-r", "-f").Wait(testSetup.ShortTimeout())
@@ -66,17 +67,17 @@ var _ = Describe("MariaDB", func() {
 
 		params := map[string]interface{}{
 			"db": map[string]interface{}{
-				"name": generator.PrefixedRandomName(config.Tests.MariaDB.Class, "db"),
-				"user": generator.PrefixedRandomName(config.Tests.MariaDB.Class, "user"),
+				"name": generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "db"),
+				"user": generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "user"),
 			},
 		}
 		By("creating the service instance")
-		err := service.Create(config.Tests.MariaDB, params, config.Timeouts.CFCreateService)
+		err := service.Create(mitsConfig.Tests.MariaDB, params, mitsConfig.Timeouts.CFCreateService)
 		Expect(err).NotTo(HaveOccurred())
 		defer service.Destroy(testSetup.ShortTimeout())
 
 		By("waiting for the service instance to become ready")
-		err = service.WaitForCreate(config.Timeouts.CFCreateService)
+		err = service.WaitForCreate(mitsConfig.Timeouts.CFCreateService)
 		Expect(err).NotTo(HaveOccurred())
 
 		By("binding the service instance to the app")
@@ -144,7 +145,7 @@ var _ = Describe("MariaDB", func() {
 		By("starting the app")
 		Expect(
 			cf.Cf("start", appName).
-				Wait(config.Timeouts.CFStart),
+				Wait(mitsConfig.Timeouts.CFStart),
 		).To(Exit(0))
 	})
 })

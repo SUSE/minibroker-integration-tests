@@ -22,7 +22,7 @@ import (
 
 var _ = Describe("PostgreSQL", func() {
 	BeforeEach(func() {
-		if !config.Tests.PostgreSQL.Enabled {
+		if !mitsConfig.Tests.PostgreSQL.Enabled {
 			Skip("Test is disabled")
 		}
 	})
