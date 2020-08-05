@@ -18,6 +18,7 @@ package mits_test
 
 import (
 	"os"
+	"reflect"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -69,29 +70,16 @@ var _ = BeforeSuite(func() {
 			cf.Cf("create-service-broker", serviceBrokerName, "user", "pass", mitsConfig.Minibroker.API.Endpoint).
 				Wait(testSetup.ShortTimeout()),
 		).To(Exit(0))
-		if mitsConfig.Tests.MariaDB.Enabled {
-			Expect(
-				cf.Cf("enable-service-access", mitsConfig.Tests.MariaDB.Class, "-b", serviceBrokerName).
-					Wait(testSetup.ShortTimeout()),
-			).To(Exit(0))
-		}
-		if mitsConfig.Tests.MySQL.Enabled {
-			Expect(
-				cf.Cf("enable-service-access", mitsConfig.Tests.MySQL.Class, "-b", serviceBrokerName).
-					Wait(testSetup.ShortTimeout()),
-			).To(Exit(0))
-		}
-		if mitsConfig.Tests.PostgreSQL.Enabled {
-			Expect(
-				cf.Cf("enable-service-access", mitsConfig.Tests.PostgreSQL.Class, "-b", serviceBrokerName).
-					Wait(testSetup.ShortTimeout()),
-			).To(Exit(0))
-		}
-		if mitsConfig.Tests.Redis.Enabled {
-			Expect(
-				cf.Cf("enable-service-access", mitsConfig.Tests.Redis.Class, "-b", serviceBrokerName).
-					Wait(testSetup.ShortTimeout()),
-			).To(Exit(0))
+
+		tests := reflect.ValueOf(mitsConfig.Tests)
+		for i := 0; i < tests.NumField(); i++ {
+			testConfig := tests.Field(i).Interface().(config.TestConfig)
+			if testConfig.Enabled {
+				Expect(
+					cf.Cf("enable-service-access", testConfig.Class, "-b", serviceBrokerName).
+						Wait(testSetup.ShortTimeout()),
+				).To(Exit(0))
+			}
 		}
 	})
 })
