@@ -18,6 +18,10 @@ package mits_test
 
 import (
 	. "github.com/onsi/ginkgo"
+
+	"github.com/cloudfoundry-incubator/cf-test-helpers/generator"
+
+	"github.com/SUSE/minibroker-integration-tests/mits"
 )
 
 var _ = Describe("PostgreSQL", func() {
@@ -25,5 +29,19 @@ var _ = Describe("PostgreSQL", func() {
 		if !mitsConfig.Tests.PostgreSQL.Enabled {
 			Skip("Test is disabled")
 		}
+	})
+
+	It("should deploy and connect", func() {
+		mits.SimpleAppAndService(
+			testSetup,
+			mitsConfig.Tests.PostgreSQL,
+			mitsConfig.Timeouts,
+			serviceBrokerName,
+			"assets/postgresqlapp",
+			map[string]interface{}{
+				"postgresqlDatabase": generator.PrefixedRandomName(mitsConfig.Tests.PostgreSQL.Class, "db"),
+				"postgresqlUsername": generator.PrefixedRandomName(mitsConfig.Tests.PostgreSQL.Class, "user"),
+			},
+		)
 	})
 })

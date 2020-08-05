@@ -30,6 +30,7 @@ config:
     postgresql:
       enabled: true
       class: postgresql
+      plan: 11-7-0
     redis:
       enabled: true
       class: redis
