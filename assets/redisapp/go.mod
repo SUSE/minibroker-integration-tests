@@ -1,4 +1,4 @@
-module github.com/SUSE/minibroker-integration-tests/assets/mariadbapp
+module github.com/SUSE/minibroker-integration-tests/assets/redisapp
 
 go 1.14
 

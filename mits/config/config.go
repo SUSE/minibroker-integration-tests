@@ -62,6 +62,7 @@ type Config struct {
 		MariaDB    TestConfig `yaml:"mariadb"`
 		MySQL      TestConfig `yaml:"mysql"`
 		PostgreSQL TestConfig `yaml:"postgresql"`
+		RabbitMQ   TestConfig `yaml:"rabbitmq"`
 		Redis      TestConfig `yaml:"redis"`
 	} `yaml:"tests"`
 
