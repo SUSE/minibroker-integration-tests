@@ -7,7 +7,7 @@ broker with Cloud Foundry.
 
 1. Install KubeCF.
 2. Install Minibroker.
-3. (optional) Build the image using the Minibroker Docker daemon:
+3. (optional) Build the image using the Minikube Docker daemon:
 ```
 MINIKUBE=true ./build/image.sh
 ```
