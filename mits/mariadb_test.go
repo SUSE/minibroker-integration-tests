@@ -43,6 +43,9 @@ var _ = Describe("MariaDB", func() {
 					"name": generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "db"),
 					"user": generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "user"),
 				},
+				"replication": map[string]interface{}{
+					"enabled": false,
+				},
 			},
 		)
 	})
