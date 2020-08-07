@@ -76,8 +76,11 @@ var _ = BeforeSuite(func() {
 			testConfig := tests.Field(i).Interface().(config.TestConfig)
 			if testConfig.Enabled {
 				Expect(
-					cf.Cf("enable-service-access", testConfig.Class, "-b", serviceBrokerName).
-						Wait(testSetup.ShortTimeout()),
+					cf.Cf(
+						"enable-service-access", testConfig.Class,
+						"-p", testConfig.Plan,
+						"-b", serviceBrokerName,
+					).Wait(testSetup.ShortTimeout()),
 				).To(Exit(0))
 			}
 		}
