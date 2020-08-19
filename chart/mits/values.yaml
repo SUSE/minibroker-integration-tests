@@ -1,6 +1,4 @@
-# The default image is computed using the chart version. To override this behaviour, set this
-# property.
-imageOverride: ~
+image: <%image%>
 
 ginkgo:
   nodes: 5

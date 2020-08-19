@@ -29,7 +29,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: mits
-        image: {{ default (printf "splatform/mits:%s" .Chart.Version) .Values.imageOverride | quote }}
+        image: {{ .Values.image | quote }}
         imagePullPolicy: IfNotPresent
         args:
         - ginkgo

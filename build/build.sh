@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+# Copyright 2020 SUSE
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -o errexit -o nounset -o pipefail
+
+git_hash_short=$(git rev-parse --short HEAD)
+git_dirty=$([[ -z "$(git status --short)" ]] || echo "-dirty")
+git_root="$(git rev-parse --show-toplevel)"
+
+: "${VERSION:="$("${git_root}/build/semver.sh")-${git_hash_short}${git_dirty}"}"
+: "${IMAGE_NAME:=splatform/mits}"
+: "${IMAGE_TAG:="${IMAGE_NAME}:${VERSION}"}"
+: "${OUTPUT_CHARTS_DIR:="${git_root}/output"}"
+: "${TMP_BUILD_DIR:="${git_root}/tmp"}"
+: "${CHART_SRC:="${git_root}/chart/mits"}"
+
+################################################################################
+# BUILD IMAGE
+################################################################################
+>&2 echo "Building image ${IMAGE_TAG}"
+
+if [[ "${MINIKUBE:-}" == "true" ]]; then
+  >&2 echo "Building using Minikube's Docker daemon..."
+  eval "$(minikube docker-env)"
+fi
+
+docker build \
+  --tag "${IMAGE_TAG}" \
+  --file "${git_root}/image/Dockerfile" \
+  .
+
+################################################################################
+# BUILD CHART
+################################################################################
+>&2 echo "Building chart to ${OUTPUT_CHARTS_DIR}"
+
+mkdir -p "${TMP_BUILD_DIR}"
+tmp_chart_build_dir="${TMP_BUILD_DIR}/mits"
+rm -rf "${tmp_chart_build_dir}"
+cp -R "${CHART_SRC}" "${tmp_chart_build_dir}"
+
+sed -i "s/<%image%>/${IMAGE_TAG//\//\\\/}/" "${tmp_chart_build_dir}/values.yaml"
+
+helm package ${CHART_SIGN_KEY:+--sign --key "${CHART_SIGN_KEY}"} \
+    --destination "${OUTPUT_CHARTS_DIR}" \
+    --version "${VERSION}" \
+    "${tmp_chart_build_dir}"
+
+rm -rf "${tmp_chart_build_dir}"
