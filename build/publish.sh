@@ -61,12 +61,12 @@ git_hash=$(git rev-parse HEAD)
 
 # Construct the release body as a draft first. We remove the draft after the
 # chart asset was uploaded.
-release_body=$(cat <<EOF
+release_data=$(cat <<EOF
 {
   "name": "${NEXT_GIT_TAG}",
   "tag_name": "${NEXT_GIT_TAG}",
   "target_commitish": "${git_hash}",
-  "body": "",
+  "body": "${RELEASE_BODY}",
   "draft": true,
   "prerelease": false
 }
@@ -82,7 +82,7 @@ release_id=$(curl \
   --header "Authorization: Bearer ${GITHUB_TOKEN}" \
   --header "Content-Type: application/json" \
   --header "Accept: application/vnd.github.v3+json" \
-  --data "${release_body}" \
+  --data "${release_data}" \
   "https://api.github.com/repos/${REPOSITORY}/releases" \
   | awk 'match($0, /^\s\s"id":\s(.*),/, id){ print id[1] }')
 
