@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: The image name in the format <username>/<image>.
+        required: true
+        default: splatform/mits
+
+env:
+  IMAGE_NAME: "${{ github.event.inputs.image_name }}"
+  IMAGE_FILTER_REFERENCE: "${{ github.event.inputs.image_name }}"
+  REPOSITORY: "${{ github.repository }}"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build image
+      run: ./build/build.sh
+    - name: Image registry login
+      run: |-
+        docker login \
+          --username "${{ secrets.DOCKER_USERNAME }}" \
+          --password-stdin <<<"${{ secrets.DOCKER_PASSWORD }}"
+    - name: Publish
+      run: ./build/publish.sh
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
