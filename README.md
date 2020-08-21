@@ -20,3 +20,11 @@ helm install mits \
   --set "config.cf.admin.password=<password for the admin user>" \
   --set "config.cf.api.endpoint=<URL for the KubeCF API>"
 ```
+
+## Creating a new release
+
+MITS uses GitHub Actions to create a new release.
+
+1. Navigate to the [Actions](./actions)
+  page and select the Release pipeline.
+2. Trigger the pipeline manually using the `workflow_dispatch` event trigger.
