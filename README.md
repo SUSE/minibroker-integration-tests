@@ -25,6 +25,6 @@ helm install mits \
 
 MITS uses GitHub Actions to create a new release.
 
-1. Navigate to the [Actions](./actions)
+1. Navigate to the [Actions](https://github.com/SUSE/minibroker-integration-tests/actions)
   page and select the Release pipeline.
 2. Trigger the pipeline manually using the `workflow_dispatch` event trigger.
