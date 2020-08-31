@@ -20,6 +20,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
+        fetch-depth: 0
     - name: Create new tag
       run: ./build/ci/create_next_tag.sh
     - name: Build image
