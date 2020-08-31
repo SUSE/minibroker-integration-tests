@@ -7,9 +7,6 @@ on:
         description: The image name in the format <username>/<image>.
         required: true
         default: splatform/mits
-      release_body:
-        description: The release body text.
-        required: true
 
 env:
   IMAGE_NAME: "${{ github.event.inputs.image_name }}"
@@ -21,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Create new tag
+      run: ./build/ci/create_next_tag.sh
     - name: Build image
       run: ./build/build.sh
     - name: Image registry login
@@ -28,8 +27,11 @@ jobs:
         docker login \
           --username "${{ secrets.DOCKER_USERNAME }}" \
           --password-stdin <<<"${{ secrets.DOCKER_PASSWORD }}"
-    - name: Publish
-      run: ./build/publish.sh
+    - name: Setup .netrc
+      run: ./build/ci/setup_netrc.sh
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        RELEASE_BODY: "${{ github.event.inputs.release_body }}"
+    - name: Publish release
+      run: ./build/ci/publish.sh
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

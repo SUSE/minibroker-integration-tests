@@ -7,15 +7,19 @@ broker with Cloud Foundry.
 
 1. Install KubeCF.
 2. Install Minibroker.
-3. (optional) Build the image using the Minikube Docker daemon:
+3. Build the image and chart:
 ```
-MINIKUBE=true ./build/image.sh
+./build/build.sh
+```
+Optionally, build the image using Minikube's Docker daemon:
+```
+MINIKUBE=true ./build/build.sh
 ```
 4. Run the tests with Helm:
 ```
 kubectl create namespace mits
 helm install mits \
-  --namespace mits chart/mits/ \
+  --namespace mits output/mits-<version>.tgz \
   --set "config.cf.admin.username=admin" \
   --set "config.cf.admin.password=<password for the admin user>" \
   --set "config.cf.api.endpoint=<URL for the KubeCF API>"

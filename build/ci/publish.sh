@@ -22,8 +22,6 @@ git_root="$(git rev-parse --show-toplevel)"
 # VERIFY ASSETS
 ################################################################################
 
-: "${IMAGE_FILTER_REFERENCE:=splatform/mits}"
-
 image=$(docker images \
   --filter "reference=${IMAGE_FILTER_REFERENCE}" \
   --format "{{ .Repository }}:{{ .Tag }}")
@@ -51,22 +49,24 @@ if [ "$(wc -l <<<"${chart_file}")" -gt 1 ]; then
 fi
 
 ################################################################################
-# PUBLISH CHART DRAFT
+# PUBLISH RELEASE DRAFT
 ################################################################################
 
-git_hash=$(git rev-parse HEAD)
+: "${VERSION:="$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb")"}"
 
-: "${REPOSITORY:=SUSE/minibroker-integration-tests}"
-: "${NEXT_GIT_TAG:=$("${git_root}/build/semver.sh")}"
+tag_name="v${VERSION}"
+
+# Push the tag before creating the release, which would trigger the creation of
+# the tag automatically.
+git push origin "refs/tags/${tag_name}"
 
 # Construct the release body as a draft first. We remove the draft after the
 # chart asset was uploaded.
 release_data=$(cat <<EOF
 {
-  "name": "${NEXT_GIT_TAG}",
-  "tag_name": "${NEXT_GIT_TAG}",
-  "target_commitish": "${git_hash}",
-  "body": "${RELEASE_BODY}",
+  "name": "${tag_name}",
+  "tag_name": "${tag_name}",
+  "body": "A MITS release.",
   "draft": true,
   "prerelease": false
 }

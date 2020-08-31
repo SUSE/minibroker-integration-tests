@@ -16,11 +16,9 @@
 
 set -o errexit -o nounset -o pipefail
 
-git_hash_short=$(git rev-parse --short HEAD)
-git_dirty=$([[ -z "$(git status --short)" ]] || echo "-dirty")
 git_root="$(git rev-parse --show-toplevel)"
 
-: "${VERSION:="$("${git_root}/build/semver.sh")-${git_hash_short}${git_dirty}"}"
+: "${VERSION:="$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb")"}"
 : "${IMAGE_NAME:=splatform/mits}"
 : "${IMAGE_TAG:="${IMAGE_NAME}:${VERSION}"}"
 : "${OUTPUT_CHARTS_DIR:="${git_root}/output"}"
