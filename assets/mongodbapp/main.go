@@ -66,11 +66,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var value Mits
-	err = collection.FindOne(ctx, bson.D{{"mits_id", "12345"}}).Decode(&value)
+	cursor, err := collection.Find(ctx, bson.D{})
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	var results []Mits
+	if err := cursor.All(ctx, &results); err != nil {
+		log.Fatal(err)
+	}
+
+	if len(results) != 1 {
+		log.Fatal(fmt.Errorf("Invalid result length: %d, expected 1", len(results)))
+	}
+
+	value := results[0]
 
 	if value.MitsID != expectedValue.MitsID {
 		log.Fatal(fmt.Errorf("Value %q is not the expected %q", value, expectedValue))
