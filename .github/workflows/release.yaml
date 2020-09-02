@@ -1,15 +1,10 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      image_repository:
-        description: The image name in the format <username>/<image>.
-        required: true
-        default: splatform/mits
+  workflow_dispatch: {}
 
 env:
-  IMAGE_REPOSITORY: "${{ github.event.inputs.image_repository }}"
+  IMAGE_REPOSITORY: ${{ github.repository }}
 
 jobs:
   release:
@@ -46,6 +41,7 @@ jobs:
     - name: Build and publish image
       uses: docker/build-push-action@v1
       with:
+        registry: ghcr.io
         repository: ${{ env.IMAGE_REPOSITORY }}
         tags: ${{ env.IMAGE_TAG }}
         labels: >-
@@ -53,8 +49,8 @@ jobs:
         add_git_labels: true
         always_pull: true
         dockerfile: image/Dockerfile
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GH_REGISTRY_PASSWORD }}
     - name: Publish release
       run: ./build/ci/release.sh
       env:

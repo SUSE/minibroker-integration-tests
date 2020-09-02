@@ -19,7 +19,7 @@ set -o errexit -o nounset -o pipefail
 git_root="$(git rev-parse --show-toplevel)"
 
 : "${VERSION:="$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb")"}"
-: "${IMAGE_REPOSITORY:=splatform/mits}"
+: "${IMAGE_REPOSITORY:=minibroker-integration-tests}"
 : "${IMAGE_TAG:="${VERSION}"}"
 : "${IMAGE:="${IMAGE_REPOSITORY}:${IMAGE_TAG}"}"
 : "${OUTPUT_CHARTS_DIR:="${git_root}/output"}"
