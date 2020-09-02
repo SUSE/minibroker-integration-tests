@@ -1,0 +1,31 @@
+# These values are used to deploy Minibroker with the override params set for
+# each service class in a way that MITS can assert this functionality.
+
+provisioning:
+  mariadb:
+    overrideParams:
+      db:
+        name: mariadb-db
+        user: mariadb-user
+      replication:
+        enabled: false
+  mongodb:
+    overrideParams:
+      mongodbDatabase: mongodb-db
+      mongodbUsername: mongodb-user
+  mysql:
+    overrideParams:
+      mysqlDatabase: mysql-db
+      mysqlUser: mysql-user
+  postgresql:
+    overrideParams:
+      postgresqlDatabase: postgresql-db
+      postgresqlUsername: postgresql-user
+  rabbitmq:
+    overrideParams:
+      rabbitmq:
+        username: rabbitmq-user
+  redis:
+    overrideParams:
+      cluster:
+        enabled: false

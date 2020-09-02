@@ -27,22 +27,49 @@ import (
 var _ = Describe("RabbitMQ", func() {
 	BeforeEach(func() {
 		if !mitsConfig.Tests.RabbitMQ.Enabled {
-			Skip("Test is disabled")
+			Skip("All RabbitMQ tests are disabled")
 		}
 	})
 
-	It("should deploy and connect", func() {
-		mits.SimpleAppAndService(
-			testSetup,
-			mitsConfig.Tests.RabbitMQ,
-			mitsConfig.Timeouts,
-			serviceBrokerName,
-			"assets/rabbitmqapp",
-			map[string]interface{}{
-				"rabbitmq": map[string]interface{}{
-					"username": generator.PrefixedRandomName(mitsConfig.Tests.RabbitMQ.Class, "user"),
+	Context("Without overrideParams set", func() {
+		BeforeEach(func() {
+			if mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are set")
+			}
+		})
+
+		It("should deploy and connect WITH extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.RabbitMQ,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/rabbitmqapp",
+				map[string]interface{}{
+					"rabbitmq": map[string]interface{}{
+						"username": generator.PrefixedRandomName(mitsConfig.Tests.RabbitMQ.Class, "user"),
+					},
 				},
-			},
-		)
+			)
+		})
+	})
+
+	Context("With overrideParams set", func() {
+		BeforeEach(func() {
+			if !mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are not set")
+			}
+		})
+
+		It("should deploy and connect WITHOUT extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.RabbitMQ,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/rabbitmqapp",
+				nil,
+			)
+		})
 	})
 })

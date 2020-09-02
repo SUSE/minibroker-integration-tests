@@ -27,21 +27,48 @@ import (
 var _ = Describe("MongoDB", func() {
 	BeforeEach(func() {
 		if !mitsConfig.Tests.MongoDB.Enabled {
-			Skip("Test is disabled")
+			Skip("All MongoDB tests are disabled")
 		}
 	})
 
-	It("should deploy and connect", func() {
-		mits.SimpleAppAndService(
-			testSetup,
-			mitsConfig.Tests.MongoDB,
-			mitsConfig.Timeouts,
-			serviceBrokerName,
-			"assets/mongodbapp",
-			map[string]interface{}{
-				"mongodbDatabase": generator.PrefixedRandomName(mitsConfig.Tests.MongoDB.Class, "db"),
-				"mongodbUsername": generator.PrefixedRandomName(mitsConfig.Tests.MongoDB.Class, "user"),
-			},
-		)
+	Context("Without overrideParams set", func() {
+		BeforeEach(func() {
+			if mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are set")
+			}
+		})
+
+		It("should deploy and connect WITH extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.MongoDB,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/mongodbapp",
+				map[string]interface{}{
+					"mongodbDatabase": generator.PrefixedRandomName(mitsConfig.Tests.MongoDB.Class, "db"),
+					"mongodbUsername": generator.PrefixedRandomName(mitsConfig.Tests.MongoDB.Class, "user"),
+				},
+			)
+		})
+	})
+
+	Context("With overrideParams set", func() {
+		BeforeEach(func() {
+			if !mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are not set")
+			}
+		})
+
+		It("should deploy and connect WITHOUT extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.MongoDB,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/mongodbapp",
+				nil,
+			)
+		})
 	})
 })
