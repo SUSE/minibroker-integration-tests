@@ -26,4 +26,4 @@ curl \
   --header "Content-Type: application/json" \
   --header "Accept: application/vnd.github.v3+json" \
   --data '{ "draft": "false" }' \
-  "https://api.github.com/repos/${REPOSITORY}/releases/${release_id}"
+  "https://api.github.com/repos/${REPOSITORY}/releases/${RELEASE_ID}"

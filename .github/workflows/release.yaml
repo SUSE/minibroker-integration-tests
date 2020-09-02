@@ -20,16 +20,30 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
-    - name: Create new tag
-      run: ./build/ci/create_next_tag.sh
-    - name: Set VERSION and IMAGE_TAG environment variable
-      run: ./build/ci/set_build_environment.sh
+    - name: Set environment variables
+      run: ./build/ci/set_environment.sh
     - name: Build chart
       run: ./build/chart.sh
     - name: Draft release
-      run: ./build/ci/draft_release.sh
+      id: draft_release
+      uses: actions/create-release@v1
+      with:
+        release_name: ${{ env.GIT_TAG }}
+        tag_name: ${{ env.GIT_TAG }}
+        body: A MITS release.
+        draft: true
+        prerelease: false
       env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload chart to draft release
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.draft_release.outputs.upload_url }}
+        asset_path: output/mits-${{ env.VERSION }}.tgz
+        asset_name: mits-${{ env.VERSION }}.tgz
+        asset_content_type: application/x-gzip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and publish image
       uses: docker/build-push-action@v1
       with:
@@ -45,4 +59,5 @@ jobs:
     - name: Publish release
       run: ./build/ci/release.sh
       env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_ID: ${{ steps.draft_release.outputs.id }}

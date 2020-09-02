@@ -16,14 +16,17 @@
 
 set -o errexit -o nounset -o pipefail
 
+git_root="$(git rev-parse --show-toplevel)"
+
 # If no tags exist, create the first one starting with v0.1.0.
 if ! git describe --tags 1> /dev/null 2> /dev/null; then
-  tag="v0.1.0"
+  git_tag="v0.1.0"
 else
   git_root="$(git rev-parse --show-toplevel)"
-  next_version=$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb" --next minor)
-  tag="v${next_version}"
+  version=$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb" --next minor)
+  git_tag="v${version}"
 fi
 
-git tag "${tag}"
-echo "::set-env name=GIT_TAG::${tag}"
+echo "::set-env name=VERSION::${version}"
+echo "::set-env name=IMAGE_TAG::${version}"
+echo "::set-env name=GIT_TAG::${git_tag}"
