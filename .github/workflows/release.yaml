@@ -48,8 +48,8 @@ jobs:
         add_git_labels: true
         always_pull: true
         dockerfile: image/Dockerfile
-        username: ${{ github.actor }}
-        password: ${{ secrets.GH_REGISTRY_PASSWORD }}
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PASSWORD }}
     - name: Publish release
       run: ./build/ci/release.sh
       env:
