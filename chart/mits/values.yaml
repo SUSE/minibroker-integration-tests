@@ -7,7 +7,9 @@ ginkgo:
   flake_attempts: 1
   slow_spec_threshold: 300 # time in seconds.
   verbose: false
+  noisy_skippings: false
 
+# config is made available to the Ginkgo tests as a YAML file.
 config:
   cf:
     api:
@@ -18,6 +20,9 @@ config:
   minibroker:
     api:
       endpoint: http://minibroker-minibroker.minibroker.svc
+    provisioning:
+      override_params:
+        enabled: false
   tests:
     mariadb:
       enabled: true

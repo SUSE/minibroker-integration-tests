@@ -20,3 +20,11 @@ helm install mits \
   --set "config.cf.admin.password=<password for the admin user>" \
   --set "config.cf.api.endpoint=<URL for the KubeCF API>"
 ```
+
+### Running the tests to assert the Override Params feature
+
+The Override Params feature allows Platform Operators to deploy Minibroker with
+static parameters that are used on every provisioning request, ignoring any
+parameters passed by the user. To assert this functionality, deploy Minibroker
+with the `deploy/minibroker/override_params_values.yaml` and pass
+`--set "config.minibroker.provisioning.override_params.enabled=true"` to MITS.

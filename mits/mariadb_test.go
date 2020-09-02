@@ -27,26 +27,53 @@ import (
 var _ = Describe("MariaDB", func() {
 	BeforeEach(func() {
 		if !mitsConfig.Tests.MariaDB.Enabled {
-			Skip("Test is disabled")
+			Skip("All MariaDB tests are disabled")
 		}
 	})
 
-	It("should deploy and connect", func() {
-		mits.SimpleAppAndService(
-			testSetup,
-			mitsConfig.Tests.MariaDB,
-			mitsConfig.Timeouts,
-			serviceBrokerName,
-			"assets/mysqlapp",
-			map[string]interface{}{
-				"db": map[string]interface{}{
-					"name": generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "db"),
-					"user": generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "user"),
+	Context("Without overrideParams set", func() {
+		BeforeEach(func() {
+			if mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are set")
+			}
+		})
+
+		It("should deploy and connect WITH extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.MariaDB,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/mysqlapp",
+				map[string]interface{}{
+					"db": map[string]interface{}{
+						"name": generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "db"),
+						"user": generator.PrefixedRandomName(mitsConfig.Tests.MariaDB.Class, "user"),
+					},
+					"replication": map[string]interface{}{
+						"enabled": false,
+					},
 				},
-				"replication": map[string]interface{}{
-					"enabled": false,
-				},
-			},
-		)
+			)
+		})
+	})
+
+	Context("With overrideParams set", func() {
+		BeforeEach(func() {
+			if !mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are not set")
+			}
+		})
+
+		It("should deploy and connect WITHOUT extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.MariaDB,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/mysqlapp",
+				nil,
+			)
+		})
 	})
 })
