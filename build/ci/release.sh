@@ -16,14 +16,14 @@
 
 set -o errexit -o nounset -o pipefail
 
-# If no tags exist, create the first one starting with v0.1.0.
-if ! git describe --tags 1> /dev/null 2> /dev/null; then
-  tag="v0.1.0"
-else
-  git_root="$(git rev-parse --show-toplevel)"
-  next_version=$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb" --next minor)
-  tag="v${next_version}"
-fi
+>&2 echo "Removing the draft flag from release"
 
-git tag "${tag}"
-echo "::set-env name=GIT_TAG::${tag}"
+curl \
+  --silent \
+  --fail \
+  --request PATCH \
+  --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+  --header "Content-Type: application/json" \
+  --header "Accept: application/vnd.github.v3+json" \
+  --data '{ "draft": "false" }' \
+  "https://api.github.com/repos/${REPOSITORY}/releases/${release_id}"

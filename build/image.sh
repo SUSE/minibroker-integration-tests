@@ -16,14 +16,21 @@
 
 set -o errexit -o nounset -o pipefail
 
-# If no tags exist, create the first one starting with v0.1.0.
-if ! git describe --tags 1> /dev/null 2> /dev/null; then
-  tag="v0.1.0"
-else
-  git_root="$(git rev-parse --show-toplevel)"
-  next_version=$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb" --next minor)
-  tag="v${next_version}"
+git_root="$(git rev-parse --show-toplevel)"
+
+: "${VERSION:="$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb")"}"
+: "${IMAGE_REPOSITORY:=splatform/mits}"
+: "${IMAGE_TAG:="${VERSION}"}"
+: "${IMAGE:="${IMAGE_REPOSITORY}:${IMAGE_TAG}"}"
+
+>&2 echo "Building image ${IMAGE}"
+
+if [[ "${MINIKUBE:-}" == "true" ]]; then
+  >&2 echo "Building using Minikube's Docker daemon..."
+  eval "$(minikube docker-env)"
 fi
 
-git tag "${tag}"
-echo "::set-env name=GIT_TAG::${tag}"
+docker build \
+  --tag "${IMAGE}" \
+  --file "${git_root}/image/Dockerfile" \
+  .

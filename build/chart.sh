@@ -19,30 +19,13 @@ set -o errexit -o nounset -o pipefail
 git_root="$(git rev-parse --show-toplevel)"
 
 : "${VERSION:="$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb")"}"
-: "${IMAGE_NAME:=splatform/mits}"
-: "${IMAGE_TAG:="${IMAGE_NAME}:${VERSION}"}"
+: "${IMAGE_REPOSITORY:=splatform/mits}"
+: "${IMAGE_TAG:="${VERSION}"}"
+: "${IMAGE:="${IMAGE_REPOSITORY}:${IMAGE_TAG}"}"
 : "${OUTPUT_CHARTS_DIR:="${git_root}/output"}"
 : "${TMP_BUILD_DIR:="${git_root}/tmp"}"
 : "${CHART_SRC:="${git_root}/chart/mits"}"
 
-################################################################################
-# BUILD IMAGE
-################################################################################
->&2 echo "Building image ${IMAGE_TAG}"
-
-if [[ "${MINIKUBE:-}" == "true" ]]; then
-  >&2 echo "Building using Minikube's Docker daemon..."
-  eval "$(minikube docker-env)"
-fi
-
-docker build \
-  --tag "${IMAGE_TAG}" \
-  --file "${git_root}/image/Dockerfile" \
-  .
-
-################################################################################
-# BUILD CHART
-################################################################################
 >&2 echo "Building chart to ${OUTPUT_CHARTS_DIR}"
 
 mkdir -p "${TMP_BUILD_DIR}"
@@ -50,7 +33,7 @@ tmp_chart_build_dir="${TMP_BUILD_DIR}/mits"
 rm -rf "${tmp_chart_build_dir}"
 cp -R "${CHART_SRC}" "${tmp_chart_build_dir}"
 
-sed -i "s/<%image%>/${IMAGE_TAG//\//\\\/}/" "${tmp_chart_build_dir}/values.yaml"
+sed -i "s/<%image%>/${IMAGE//\//\\\/}/" "${tmp_chart_build_dir}/values.yaml"
 
 helm package ${CHART_SIGN_KEY:+--sign --key "${CHART_SIGN_KEY}"} \
     --destination "${OUTPUT_CHARTS_DIR}" \

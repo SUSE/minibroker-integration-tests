@@ -22,20 +22,6 @@ git_root="$(git rev-parse --show-toplevel)"
 # VERIFY ASSETS
 ################################################################################
 
-image=$(docker images \
-  --filter "reference=${IMAGE_FILTER_REFERENCE}" \
-  --format "{{ .Repository }}:{{ .Tag }}")
-
-if [ -z "${image}" ]; then
-  >&2 echo "Failed to publish: no image found"
-  exit 1
-fi
-
-if [ "$(wc -l <<<"${image}")" -gt 1 ]; then
-  >&2 echo "Failed to publish: found more than one image candidate"
-  exit 1
-fi
-
 chart_file=$(find "${git_root}/output/" -name 'mits*')
 
 if [ -z "${chart_file}" ]; then
@@ -48,24 +34,16 @@ if [ "$(wc -l <<<"${chart_file}")" -gt 1 ]; then
   exit 1
 fi
 
-################################################################################
-# PUBLISH RELEASE DRAFT
-################################################################################
-
-: "${VERSION:="$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb")"}"
-
-tag_name="v${VERSION}"
-
 # Push the tag before creating the release, which would trigger the creation of
 # the tag automatically.
-git push origin "refs/tags/${tag_name}"
+git push origin "refs/tags/${GIT_TAG}"
 
 # Construct the release body as a draft first. We remove the draft after the
 # chart asset was uploaded.
 release_data=$(cat <<EOF
 {
-  "name": "${tag_name}",
-  "tag_name": "${tag_name}",
+  "name": "${GIT_TAG}",
+  "tag_name": "${GIT_TAG}",
   "body": "A MITS release.",
   "draft": true,
   "prerelease": false
@@ -98,27 +76,3 @@ curl \
   --header "Accept: application/vnd.github.v3+json" \
   --data-binary "@${chart_file}" \
   "https://uploads.github.com/repos/${REPOSITORY}/releases/${release_id}/assets?name=$(basename "${chart_file}")"
-
-################################################################################
-# PUBLISH IMAGE
-################################################################################
-
->&2 echo "Publishing ${image}"
-
-docker push "${image}"
-
-################################################################################
-# RELEASE
-################################################################################
-
->&2 echo "Removing the draft flag from release"
-
-curl \
-  --silent \
-  --fail \
-  --request PATCH \
-  --header "Authorization: Bearer ${GITHUB_TOKEN}" \
-  --header "Content-Type: application/json" \
-  --header "Accept: application/vnd.github.v3+json" \
-  --data '{ "draft": "false" }' \
-  "https://api.github.com/repos/${REPOSITORY}/releases/${release_id}"
