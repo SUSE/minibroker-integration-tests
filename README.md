@@ -9,11 +9,11 @@ broker with Cloud Foundry.
 2. Install Minibroker.
 3. Build the image and chart:
 ```
-./build/build.sh
+./build/all.sh
 ```
 Optionally, build the image using Minikube's Docker daemon:
 ```
-MINIKUBE=true ./build/build.sh
+MINIKUBE=true ./build/all.sh
 ```
 4. Run the tests with Helm:
 ```
