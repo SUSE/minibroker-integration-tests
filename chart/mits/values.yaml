@@ -3,7 +3,7 @@
 imageOverride: ~
 
 ginkgo:
-  nodes: 5
+  nodes: 4
   flake_attempts: 1
   slow_spec_threshold: 300 # time in seconds.
   verbose: false
@@ -23,6 +23,10 @@ config:
       enabled: true
       class: mariadb
       plan: 10-3-22
+    mongodb:
+      enabled: true
+      class: mongodb
+      plan: 4-2-4
     mysql:
       enabled: true
       class: mysql
