@@ -10,7 +10,6 @@ on:
 
 env:
   IMAGE_REPOSITORY: "${{ github.event.inputs.image_repository }}"
-  REPOSITORY: "${{ github.repository }}"
 
 jobs:
   release:
@@ -60,4 +59,5 @@ jobs:
       run: ./build/ci/release.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GIT_REPOSITORY: ${{ github.repository }}
         RELEASE_ID: ${{ steps.draft_release.outputs.id }}
