@@ -31,9 +31,13 @@ else
 fi
 git_tag="v${version}"
 
+git_repository_lower=$(echo "${GIT_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+
 echo "::set-env name=VERSION::${version}"
 echo "VERSION::${version}"
 echo "::set-env name=IMAGE_TAG::${version}"
 echo "IMAGE_TAG::${version}"
+echo "::set-env name=GIT_REPOSITORY_LOWER::${git_repository_lower}"
+echo "GIT_REPOSITORY_LOWER::${git_repository_lower}"
 echo "::set-env name=GIT_TAG::${git_tag}"
 echo "GIT_TAG::${git_tag}"

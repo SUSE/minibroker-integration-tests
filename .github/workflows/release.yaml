@@ -13,10 +13,12 @@ jobs:
         fetch-depth: 0
     - name: Set environment variables
       run: ./build/ci/set_environment.sh
+      env:
+        GIT_REPOSITORY: ${{ github.repository }}
     - name: Build chart
       run: ./build/chart.sh
       env:
-        IMAGE_REPOSITORY: ghcr.io/${{ github.repository }}
+        IMAGE_REPOSITORY: ghcr.io/${{ env.GIT_REPOSITORY_LOWER }}
     - name: Draft release
       id: draft_release
       uses: actions/create-release@v1
@@ -41,7 +43,7 @@ jobs:
       uses: docker/build-push-action@v1
       with:
         registry: ghcr.io
-        repository: ${{ github.repository }}
+        repository: ${{ env.GIT_REPOSITORY_LOWER }}
         tags: ${{ env.IMAGE_TAG }}
         labels: >-
           org.opencontainers.image.version=${{ env.VERSION }},
