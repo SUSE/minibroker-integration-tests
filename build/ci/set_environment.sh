@@ -24,12 +24,12 @@ git_root="$(git rev-parse --show-toplevel)"
 
 # If no tags exist, create the first one starting with v0.1.0.
 if ! git describe --tags 1> /dev/null 2> /dev/null; then
-  git_tag="v0.1.0"
+  version="0.1.0"
 else
   git_root="$(git rev-parse --show-toplevel)"
   version=$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb" --next minor)
-  git_tag="v${version}"
 fi
+git_tag="v${version}"
 
 echo "::set-env name=VERSION::${version}"
 echo "VERSION::${version}"
