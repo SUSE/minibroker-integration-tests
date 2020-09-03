@@ -15,7 +15,7 @@
 FROM golang:1.14 AS builder
 
 ARG DUMB_INIT_VERSION="1.2.2"
-ARG CF_CLI_VERSION="6.51.0"
+ARG CF_CLI_VERSION="7.0.2"
 
 RUN curl -L -o /usr/local/bin/dumb-init \
       "https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_amd64"
@@ -23,7 +23,7 @@ RUN chmod +x /usr/local/bin/dumb-init
 
 RUN go get -u github.com/onsi/ginkgo/ginkgo
 RUN curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=${CF_CLI_VERSION}" \
-      | tar zx -C /usr/local/bin cf
+      | tar zx -C /usr/local/bin cf cf7
 
 WORKDIR /minibroker-integration-tests
 # Copy the go.mod over so docker can cache the module downloads if possible.
