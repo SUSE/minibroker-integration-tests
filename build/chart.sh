@@ -33,7 +33,7 @@ tmp_chart_build_dir="${TMP_BUILD_DIR}/mits"
 rm -rf "${tmp_chart_build_dir}"
 cp -R "${CHART_SRC}" "${tmp_chart_build_dir}"
 
-sed -i "s/<%image%>/${IMAGE//\//\\\/}/" "${tmp_chart_build_dir}/values.yaml"
+sed -i "s#<%image%>#${IMAGE}#" "${tmp_chart_build_dir}/values.yaml"
 
 helm package ${CHART_SIGN_KEY:+--sign --key "${CHART_SIGN_KEY}"} \
     --destination "${OUTPUT_CHARTS_DIR}" \
