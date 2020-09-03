@@ -16,21 +16,14 @@
 
 set -o errexit -o nounset -o pipefail
 
-git_root="$(git rev-parse --show-toplevel)"
+>&2 echo "Removing the draft flag from release"
 
-: "${VERSION:="$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb")"}"
-: "${IMAGE_REPOSITORY:=minibroker-integration-tests}"
-: "${IMAGE_TAG:="${VERSION}"}"
-: "${IMAGE:="${IMAGE_REPOSITORY}:${IMAGE_TAG}"}"
-
->&2 echo "Building image ${IMAGE}"
-
-if [[ "${MINIKUBE:-}" == "true" ]]; then
-  >&2 echo "Building using Minikube's Docker daemon..."
-  eval "$(minikube docker-env)"
-fi
-
-docker build \
-  --tag "${IMAGE}" \
-  --file "${git_root}/image/Dockerfile" \
-  .
+curl \
+  --silent \
+  --fail \
+  --request PATCH \
+  --header "Authorization: Bearer ${GITHUB_TOKEN}" \
+  --header "Content-Type: application/json" \
+  --header "Accept: application/vnd.github.v3+json" \
+  --data '{ "draft": "false" }' \
+  "https://api.github.com/repos/${GIT_REPOSITORY}/releases/${RELEASE_ID}"

@@ -22,15 +22,22 @@ git_root="$(git rev-parse --show-toplevel)"
 : "${IMAGE_REPOSITORY:=minibroker-integration-tests}"
 : "${IMAGE_TAG:="${VERSION}"}"
 : "${IMAGE:="${IMAGE_REPOSITORY}:${IMAGE_TAG}"}"
+: "${OUTPUT_CHARTS_DIR:="${git_root}/output"}"
+: "${TMP_BUILD_DIR:="${git_root}/tmp"}"
+: "${CHART_SRC:="${git_root}/chart/mits"}"
 
->&2 echo "Building image ${IMAGE}"
+>&2 echo "Building chart to ${OUTPUT_CHARTS_DIR}"
 
-if [[ "${MINIKUBE:-}" == "true" ]]; then
-  >&2 echo "Building using Minikube's Docker daemon..."
-  eval "$(minikube docker-env)"
-fi
+mkdir -p "${TMP_BUILD_DIR}"
+tmp_chart_build_dir="${TMP_BUILD_DIR}/mits"
+rm -rf "${tmp_chart_build_dir}"
+cp -R "${CHART_SRC}" "${tmp_chart_build_dir}"
 
-docker build \
-  --tag "${IMAGE}" \
-  --file "${git_root}/image/Dockerfile" \
-  .
+sed -i "s#<%image%>#${IMAGE}#" "${tmp_chart_build_dir}/values.yaml"
+
+helm package ${CHART_SIGN_KEY:+--sign --key "${CHART_SIGN_KEY}"} \
+    --destination "${OUTPUT_CHARTS_DIR}" \
+    --version "${VERSION}" \
+    "${tmp_chart_build_dir}"
+
+rm -rf "${tmp_chart_build_dir}"

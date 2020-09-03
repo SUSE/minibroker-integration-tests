@@ -18,19 +18,5 @@ set -o errexit -o nounset -o pipefail
 
 git_root="$(git rev-parse --show-toplevel)"
 
-: "${VERSION:="$("${git_root}/third-party/kubecf-tools/versioning/versioning.rb")"}"
-: "${IMAGE_REPOSITORY:=minibroker-integration-tests}"
-: "${IMAGE_TAG:="${VERSION}"}"
-: "${IMAGE:="${IMAGE_REPOSITORY}:${IMAGE_TAG}"}"
-
->&2 echo "Building image ${IMAGE}"
-
-if [[ "${MINIKUBE:-}" == "true" ]]; then
-  >&2 echo "Building using Minikube's Docker daemon..."
-  eval "$(minikube docker-env)"
-fi
-
-docker build \
-  --tag "${IMAGE}" \
-  --file "${git_root}/image/Dockerfile" \
-  .
+"${git_root}/build/image.sh"
+"${git_root}/build/chart.sh"

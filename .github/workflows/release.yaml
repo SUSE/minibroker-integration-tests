@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - name: Set environment variables
+      run: ./build/ci/set_environment.sh
+    - name: Build chart
+      run: ./build/chart.sh
+      env:
+        IMAGE_REPOSITORY: ghcr.io/${{ github.repository }}
+    - name: Draft release
+      id: draft_release
+      uses: actions/create-release@v1
+      with:
+        release_name: ${{ env.GIT_TAG }}
+        tag_name: ${{ env.GIT_TAG }}
+        body: Minibroker Interegration Tests ${{ env.GIT_TAG }}.
+        draft: true
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload chart to draft release
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.draft_release.outputs.upload_url }}
+        asset_path: output/mits-${{ env.VERSION }}.tgz
+        asset_name: mits-${{ env.VERSION }}.tgz
+        asset_content_type: application/x-gzip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and publish image
+      uses: docker/build-push-action@v1
+      with:
+        registry: ghcr.io
+        repository: ${{ github.repository }}
+        tags: ${{ env.IMAGE_TAG }}
+        labels: >-
+          org.opencontainers.image.version=${{ env.VERSION }},
+          org.opencontainers.image.title=Minibroker Integration Tests,
+          org.opencontainers.image.url=https://github.com/${{ github.repository }},
+          org.opencontainers.image.vendor=SUSE Cloud Application Platform,
+          org.opencontainers.image.description=An image containing the Minibroker Integration tests with Cloud Foundry
+        add_git_labels: true
+        always_pull: true
+        dockerfile: image/Dockerfile
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PASSWORD }}
+    - name: Publish release
+      run: ./build/ci/release.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GIT_REPOSITORY: ${{ github.repository }}
+        RELEASE_ID: ${{ steps.draft_release.outputs.id }}
