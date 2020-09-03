@@ -25,22 +25,49 @@ import (
 var _ = Describe("Redis", func() {
 	BeforeEach(func() {
 		if !mitsConfig.Tests.Redis.Enabled {
-			Skip("Test is disabled")
+			Skip("All Redis tests are disabled")
 		}
 	})
 
-	It("should deploy and connect", func() {
-		mits.SimpleAppAndService(
-			testSetup,
-			mitsConfig.Tests.Redis,
-			mitsConfig.Timeouts,
-			serviceBrokerName,
-			"assets/redisapp",
-			map[string]interface{}{
-				"cluster": map[string]interface{}{
-					"enabled": false,
+	Context("Without overrideParams set", func() {
+		BeforeEach(func() {
+			if mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are set")
+			}
+		})
+
+		It("should deploy and connect WITH extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.Redis,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/redisapp",
+				map[string]interface{}{
+					"cluster": map[string]interface{}{
+						"enabled": false,
+					},
 				},
-			},
-		)
+			)
+		})
+	})
+
+	Context("With overrideParams set", func() {
+		BeforeEach(func() {
+			if !mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are not set")
+			}
+		})
+
+		It("should deploy and connect WITHOUT extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.Redis,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/redisapp",
+				nil,
+			)
+		})
 	})
 })

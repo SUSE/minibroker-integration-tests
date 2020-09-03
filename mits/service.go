@@ -62,18 +62,22 @@ func NewService(
 
 // Create creates the service instance on CF.
 func (service *Service) Create(testConfig config.TestConfig, params map[string]interface{}, timeout time.Duration) error {
-	paramsBytes, err := json.Marshal(params)
-	if err != nil {
-		return fmt.Errorf("failed to create service instance: %w", err)
+	createArgs := []string{"create-service", "-b", service.brokerName, testConfig.Class, testConfig.Plan, service.name}
+	if params != nil {
+		paramsBytes, err := json.Marshal(params)
+		if err != nil {
+			return fmt.Errorf("failed to create service instance: %w", err)
+		}
+		createArgs = append(createArgs, "-c", string(paramsBytes))
 	}
-	session := cf.Cf("create-service", "-b", service.brokerName, testConfig.Class, testConfig.Plan, service.name, "-c", string(paramsBytes)).
+	session := cf.Cf(createArgs...).
 		Wait(timeout)
 	if exitCode := session.ExitCode(); exitCode != 0 {
 		return fmt.Errorf("failed to create service instance: cf create-service %s exited with code %d", service.name, exitCode)
 	}
 	var guidBuilder strings.Builder
 	cmd := exec.Command("cf", "service", "--guid", service.name)
-	session, err = gexec.Start(cmd, &guidBuilder, service.stderr)
+	session, err := gexec.Start(cmd, &guidBuilder, service.stderr)
 	if err != nil {
 		return fmt.Errorf("failed to create service instance: %w", err)
 	}

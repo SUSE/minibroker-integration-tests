@@ -39,6 +39,7 @@ spec:
         - -nodes={{ .Values.ginkgo.nodes }}
         - -slowSpecThreshold={{ .Values.ginkgo.slow_spec_threshold }}
         - -flakeAttempts={{ .Values.ginkgo.flake_attempts }}
+        - -noisySkippings={{ .Values.ginkgo.noisy_skippings }}
         - ./mits/mits.test
         env:
         - name: CONFIG_PATH

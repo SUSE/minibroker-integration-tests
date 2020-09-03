@@ -56,10 +56,16 @@ type Config struct {
 		API struct {
 			Endpoint string `yaml:"endpoint"`
 		} `yaml:"api"`
+		Provisioning struct {
+			OverrideParams struct {
+				Enabled bool `yaml:"enabled"`
+			} `yaml:"override_params"`
+		} `yaml:"provisioning"`
 	} `yaml:"minibroker"`
 
 	Tests struct {
 		MariaDB    TestConfig `yaml:"mariadb"`
+		MongoDB    TestConfig `yaml:"mongodb"`
 		MySQL      TestConfig `yaml:"mysql"`
 		PostgreSQL TestConfig `yaml:"postgresql"`
 		RabbitMQ   TestConfig `yaml:"rabbitmq"`

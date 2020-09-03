@@ -24,10 +24,10 @@ import (
 	"github.com/SUSE/minibroker-integration-tests/mits"
 )
 
-var _ = Describe("MySQL", func() {
+var _ = Describe("MongoDB", func() {
 	BeforeEach(func() {
-		if !mitsConfig.Tests.MySQL.Enabled {
-			Skip("All MySQL tests are disabled")
+		if !mitsConfig.Tests.MongoDB.Enabled {
+			Skip("All MongoDB tests are disabled")
 		}
 	})
 
@@ -41,13 +41,13 @@ var _ = Describe("MySQL", func() {
 		It("should deploy and connect WITH extra provisioning parameters", func() {
 			mits.SimpleAppAndService(
 				testSetup,
-				mitsConfig.Tests.MySQL,
+				mitsConfig.Tests.MongoDB,
 				mitsConfig.Timeouts,
 				serviceBrokerName,
-				"assets/mysqlapp",
+				"assets/mongodbapp",
 				map[string]interface{}{
-					"mysqlDatabase": generator.PrefixedRandomName(mitsConfig.Tests.MySQL.Class, "db"),
-					"mysqlUser":     generator.PrefixedRandomName(mitsConfig.Tests.MySQL.Class, "user"),
+					"mongodbDatabase": generator.PrefixedRandomName(mitsConfig.Tests.MongoDB.Class, "db"),
+					"mongodbUsername": generator.PrefixedRandomName(mitsConfig.Tests.MongoDB.Class, "user"),
 				},
 			)
 		})
@@ -63,10 +63,10 @@ var _ = Describe("MySQL", func() {
 		It("should deploy and connect WITHOUT extra provisioning parameters", func() {
 			mits.SimpleAppAndService(
 				testSetup,
-				mitsConfig.Tests.MySQL,
+				mitsConfig.Tests.MongoDB,
 				mitsConfig.Timeouts,
 				serviceBrokerName,
-				"assets/mysqlapp",
+				"assets/mongodbapp",
 				nil,
 			)
 		})

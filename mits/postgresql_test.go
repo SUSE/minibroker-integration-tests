@@ -27,21 +27,48 @@ import (
 var _ = Describe("PostgreSQL", func() {
 	BeforeEach(func() {
 		if !mitsConfig.Tests.PostgreSQL.Enabled {
-			Skip("Test is disabled")
+			Skip("All PostgreSQL tests are disabled")
 		}
 	})
 
-	It("should deploy and connect", func() {
-		mits.SimpleAppAndService(
-			testSetup,
-			mitsConfig.Tests.PostgreSQL,
-			mitsConfig.Timeouts,
-			serviceBrokerName,
-			"assets/postgresqlapp",
-			map[string]interface{}{
-				"postgresqlDatabase": generator.PrefixedRandomName(mitsConfig.Tests.PostgreSQL.Class, "db"),
-				"postgresqlUsername": generator.PrefixedRandomName(mitsConfig.Tests.PostgreSQL.Class, "user"),
-			},
-		)
+	Context("Without overrideParams set", func() {
+		BeforeEach(func() {
+			if mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are set")
+			}
+		})
+
+		It("should deploy and connect WITH extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.PostgreSQL,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/postgresqlapp",
+				map[string]interface{}{
+					"postgresqlDatabase": generator.PrefixedRandomName(mitsConfig.Tests.PostgreSQL.Class, "db"),
+					"postgresqlUsername": generator.PrefixedRandomName(mitsConfig.Tests.PostgreSQL.Class, "user"),
+				},
+			)
+		})
+	})
+
+	Context("With overrideParams set", func() {
+		BeforeEach(func() {
+			if !mitsConfig.Minibroker.Provisioning.OverrideParams.Enabled {
+				Skip("overrideParams are not set")
+			}
+		})
+
+		It("should deploy and connect WITHOUT extra provisioning parameters", func() {
+			mits.SimpleAppAndService(
+				testSetup,
+				mitsConfig.Tests.PostgreSQL,
+				mitsConfig.Timeouts,
+				serviceBrokerName,
+				"assets/postgresqlapp",
+				nil,
+			)
+		})
 	})
 })
