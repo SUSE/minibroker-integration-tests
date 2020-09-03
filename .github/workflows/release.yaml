@@ -23,7 +23,7 @@ jobs:
       with:
         release_name: ${{ env.GIT_TAG }}
         tag_name: ${{ env.GIT_TAG }}
-        body: A MITS release.
+        body: Minibroker Interegration Tests ${{ env.GIT_TAG }}.
         draft: true
         prerelease: false
       env:
