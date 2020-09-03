@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This script sets the environment variables for GitHub Actions. It should be
+# run as one of the first steps so it makes these values available for the next
+# steps.
+
 set -o errexit -o nounset -o pipefail
 
 git_root="$(git rev-parse --show-toplevel)"
@@ -28,5 +32,8 @@ else
 fi
 
 echo "::set-env name=VERSION::${version}"
+echo "VERSION::${version}"
 echo "::set-env name=IMAGE_TAG::${version}"
+echo "IMAGE_TAG::${version}"
 echo "::set-env name=GIT_TAG::${git_tag}"
+echo "GIT_TAG::${git_tag}"
