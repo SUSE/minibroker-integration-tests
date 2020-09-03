@@ -44,7 +44,11 @@ jobs:
         repository: ${{ github.repository }}
         tags: ${{ env.IMAGE_TAG }}
         labels: >-
-          org.opencontainers.image.version=${{ env.VERSION }}
+          org.opencontainers.image.version=${{ env.VERSION }},
+          org.opencontainers.image.title=Minibroker Integration Tests,
+          org.opencontainers.image.url=https://github.com/${{ github.repository }},
+          org.opencontainers.image.vendor=SUSE Cloud Application Platform,
+          org.opencontainers.image.description=An image containing the Minibroker Integration tests with Cloud Foundry
         add_git_labels: true
         always_pull: true
         dockerfile: image/Dockerfile
