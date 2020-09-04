@@ -31,13 +31,9 @@ else
 fi
 git_tag="v${version}"
 
-github_repository_lower="${GITHUB_REPOSITORY,,}"
-
 echo "::set-env name=VERSION::${version}"
 echo "VERSION::${version}"
 echo "::set-env name=IMAGE_TAG::${version}"
 echo "IMAGE_TAG::${version}"
-echo "::set-env name=GITHUB_REPOSITORY_LOWER::${github_repository_lower}"
-echo "GITHUB_REPOSITORY_LOWER::${github_repository_lower}"
 echo "::set-env name=GIT_TAG::${git_tag}"
 echo "GIT_TAG::${git_tag}"

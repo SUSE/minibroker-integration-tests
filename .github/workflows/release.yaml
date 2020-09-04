@@ -1,7 +1,13 @@
 name: Release
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      ghcr_image_repository:
+        description: |
+          The image repository on GitHub Container Registry.
+        required: true
+        default: cloudfoundry-incubator/minibroker-integration-tests
 
 jobs:
   release:
@@ -13,12 +19,10 @@ jobs:
         fetch-depth: 0
     - name: Set environment variables
       run: ./build/ci/set_environment.sh
-      env:
-        GITHUB_REPOSITORY: ${{ github.repository }}
     - name: Build chart
       run: ./build/chart.sh
       env:
-        IMAGE_REPOSITORY: ghcr.io/${{ env.GITHUB_REPOSITORY_LOWER }}
+        IMAGE_REPOSITORY: ghcr.io/${{ github.event.inputs.ghcr_image_repository }}
     - name: Draft release
       id: draft_release
       uses: actions/create-release@v1
@@ -43,7 +47,7 @@ jobs:
       uses: docker/build-push-action@v1
       with:
         registry: ghcr.io
-        repository: ${{ env.GITHUB_REPOSITORY_LOWER }}
+        repository: ${{ github.event.inputs.ghcr_image_repository }}
         tags: ${{ env.IMAGE_TAG }}
         labels: >-
           org.opencontainers.image.version=${{ env.VERSION }},
