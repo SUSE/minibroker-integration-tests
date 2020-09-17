@@ -16,7 +16,6 @@
 
 set -o errexit -o nounset -o pipefail -o xtrace
 
-: "${CHART_TARBALL:=""}"
 : "${NAMESPACE:=minibroker}"
 : "${RELEASE_NAME:=minibroker}"
 : "${SET_OVERRIDE_PARAMS:=""}"

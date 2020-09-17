@@ -18,10 +18,7 @@ set -o errexit -o nounset -o pipefail -o xtrace
 
 : "${NAMESPACE:=mits}"
 : "${RELEASE_NAME:=mits}"
-: "${CHART_TARBALL:=""}"
 : "${CF_ADMIN_USERNAME:=admin}"
-: "${CF_ADMIN_PASSWORD:=""}"
-: "${CF_API_ENDPOINT:=""}"
 : "${SET_OVERRIDE_PARAMS:=""}"
 
 if ! kubectl version 1> /dev/null 2> /dev/null; then
