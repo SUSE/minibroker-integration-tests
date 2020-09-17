@@ -21,12 +21,12 @@ set -o errexit -o nounset -o pipefail -o xtrace
 : "${RELEASE_NAME:=minibroker}"
 : "${SET_OVERRIDE_PARAMS:=""}"
 
-if ! kubectl --version 1> /dev/null 2> /dev/null; then
+if ! kubectl version 1> /dev/null 2> /dev/null; then
   >&2 echo "ERROR: Missing kubectl binary"
   exit 1
 fi
 
-if ! helm --version 1> /dev/null 2> /dev/null; then
+if ! helm version 1> /dev/null 2> /dev/null; then
   >&2 echo "ERROR: Missing helm binary"
   exit 1
 fi
