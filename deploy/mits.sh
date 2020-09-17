@@ -34,10 +34,61 @@ if ! helm version 1> /dev/null 2> /dev/null; then
   exit 1
 fi
 
-kubectl create namespace "${NAMESPACE}"
+>&2 echo "Deploying MITS..."
+
+if [ -z "$(kubectl get namespace "${NAMESPACE}" --output name)" ]; then
+  kubectl create namespace "${NAMESPACE}"
+fi
+
 helm install "${RELEASE_NAME}" "${CHART_TARBALL}" \
   --namespace "${NAMESPACE}" \
   ${SET_OVERRIDE_PARAMS:+--set "config.minibroker.provisioning.override_params.enabled=true"} \
   --set "config.cf.admin.username=${CF_ADMIN_USERNAME}" \
   --set "config.cf.admin.password="${CF_ADMIN_PASSWORD}"" \
   --set "config.cf.api.endpoint=${CF_API_ENDPOINT}"
+
+function on_exit() {
+  helm delete "${RELEASE_NAME}" --namespace "${NAMESPACE}"
+  kubectl delete namespace "${NAMESPACE}"
+}
+
+trap on_exit EXIT
+
+>&2 echo "Waiting for MITS to be ready..."
+until kubectl get pod \
+  --namespace "${NAMESPACE}" \
+  --selector "job-name=${RELEASE_NAME}-mits" \
+  --output name \
+  2> /dev/null \
+  | wc -l \
+  | awk '$0 == 0 { exit 1 }'; do
+    sleep 1
+done
+
+pod_name=$(kubectl get pod \
+  --namespace "${NAMESPACE}" \
+  --selector "job-name=${RELEASE_NAME}-mits" \
+  --output name)
+pod_name="${pod_name/#pod\//}"
+
+kubectl wait pod "${pod_name}" \
+  --namespace "${NAMESPACE}" \
+  --for condition=ready \
+  --timeout 3m
+
+kubectl logs "${pod_name}" \
+  --follow \
+  --timestamps \
+  --namespace "${NAMESPACE}"
+
+# Wait for the container to terminate and then exit the script with the container's exit code.
+jsonpath='{.status.containerStatuses[?(@.name == "mits")].state.terminated.exitCode}'
+while true; do
+  exit_code=$(kubectl get pod "${pod_name}" \
+    --namespace "${NAMESPACE}" \
+    --output "jsonpath=${jsonpath}")
+  if [[ -n "${exit_code}" ]]; then
+    exit "${exit_code}"
+  fi
+  sleep 1
+done

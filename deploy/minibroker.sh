@@ -33,9 +33,13 @@ fi
 
 git_root="$(git rev-parse --show-toplevel)"
 
-kubectl create namespace "${NAMESPACE}"
+if [ -z "$(kubectl get namespace "${NAMESPACE}" --output name)" ]; then
+  kubectl create namespace "${NAMESPACE}"
+fi
+
 helm install "${RELEASE_NAME}" "${CHART_TARBALL}" \
-  ${SET_OVERRIDE_PARAMS:+--values "${git_root}/deploy/minibroker/override_params_values.yaml"} \
+  --wait \
   --namespace "${NAMESPACE}" \
+  ${SET_OVERRIDE_PARAMS:+--values "${git_root}/deploy/minibroker/override_params_values.yaml"} \
   --set "deployServiceCatalog=false" \
   --set "defaultNamespace=${NAMESPACE}"
