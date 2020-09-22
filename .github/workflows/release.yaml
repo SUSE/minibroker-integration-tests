@@ -7,7 +7,7 @@ on:
         description: |
           The image repository on GitHub Container Registry.
         required: true
-        default: cloudfoundry-incubator/minibroker-integration-tests
+        default: cfcontainerizationbot/minibroker-integration-tests
 
 jobs:
   release:
