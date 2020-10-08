@@ -122,7 +122,7 @@ func SimpleAppAndService(
 	}()
 	workflowhelpers.AsUser(testSetup.AdminUserContext(), testSetup.ShortTimeout(), func() {
 		Expect(
-			cf.Cf("bind-security-group", securityGroupName, orgName, spaceName, "--lifecycle", "running").
+			cf.Cf("bind-security-group", securityGroupName, orgName, "--space", spaceName, "--lifecycle", "running").
 				Wait(testSetup.ShortTimeout()),
 		).To(Exit(0))
 	})
