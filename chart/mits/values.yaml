@@ -51,4 +51,4 @@ config:
   timeouts:
     cf_push: 3m
     cf_start: 10m
-    cf_create_service: 5m
+    cf_create_service: 10m
